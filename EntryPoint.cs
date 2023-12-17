@@ -1,31 +1,26 @@
 ﻿using BepInEx;
 using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
-using ExtraObjectiveSetup.JSON;
-using ExtraObjectiveSetup.Expedition;
-using ExtraObjectiveSetup.Expedition.Gears;
-using ExtraObjectiveSetup.Expedition.IndividualGeneratorGroup;
-using ExtraObjectiveSetup.Expedition.EMP;
 
-namespace ExtraObjectiveSetup
+
+namespace EOSExt.EMP
 {
     [BepInDependency("dev.gtfomodding.gtfo-api", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency(MTFOUtil.PLUGIN_GUID, BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency(MTFOPartialDataUtil.PLUGIN_GUID, BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInDependency(InjectLibUtil.PLUGIN_GUID, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("GTFO.FloLib", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency("Inas.ExtraObjectiveSetup", BepInDependency.DependencyFlags.HardDependency)]
     [BepInPlugin(AUTHOR + "." + PLUGIN_NAME, PLUGIN_NAME, VERSION)]
     
     public class EntryPoint: BasePlugin
     {
         public const string AUTHOR = "Inas";
-        public const string PLUGIN_NAME = "ExtraObjectiveSetup";
-        public const string VERSION = "1.4.3";
+        public const string PLUGIN_NAME = "EOSExt.EMP";
+        public const string VERSION = "1.0.0";
 
         private Harmony m_Harmony;
         
         public override void Load()
         {
-            m_Harmony = new Harmony("ExtraObjectiveSetup");
+            m_Harmony = new Harmony("EOSExt.EMP");
             m_Harmony.PatchAll();
 
             SetupManagers();
@@ -36,26 +31,7 @@ namespace ExtraObjectiveSetup
         /// </summary>
         private void SetupManagers()
         {
-            BatchBuildManager.Current.Init();
-
-            Objectives.IndividualGenerator.IndividualGeneratorObjectiveManager.Current.Init();
-            Objectives.GeneratorCluster.GeneratorClusterObjectiveManager.Current.Init();
-            Objectives.ActivateSmallHSU.HSUActivatorObjectiveManager.Current.Init();
-            Objectives.TerminalUplink.UplinkObjectiveManager.Current.Init();
-
-            Tweaks.TerminalPosition.TerminalPositionOverrideManager.Current.Init();
-            Tweaks.Scout.ScoutScreamEventManager.Current.Init();
-            Tweaks.BossEvents.BossDeathEventManager.Current.Init();
-
-            ExpeditionDefinitionManager.Current.Init();
-            ExpeditionGearManager.Current.Init();
-            ExpeditionIGGroupManager.Current.Init();
             EMPManager.Current.Init();
-
-            Instances.GeneratorClusterInstanceManager.Current.Init();
-            Instances.HSUActivatorInstanceManager.Current.Init();
-            Instances.PowerGeneratorInstanceManager.Current.Init();
-            Instances.TerminalInstanceManager.Current.Init();
         }
     }
 }
