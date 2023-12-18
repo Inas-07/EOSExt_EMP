@@ -32,17 +32,19 @@ namespace EOSExt.EMP.Impl
 
         public StateReplicator<pEMPState> StateReplicator { get; private set; }
 
+        public ActiveState State => StateReplicator != null ? StateReplicator.State.status : ActiveState.DISABLED;
+
         public void OnStateChanged(pEMPState oldState, pEMPState newState, bool isRecall)
         {
-            if (oldState.status == newState.status) return;
+            if (def == null || oldState.status == newState.status) return;
 
             EOSLogger.Debug($"pEMP_{def.pEMPIndex} Change state: {oldState.status} -> {newState.status}");
             switch (newState.status)
             {
                 case ActiveState.DISABLED:
-                    duration = float.NegativeInfinity; break;
+                    endTime = float.NegativeInfinity; break;
                 case ActiveState.ENABLED:
-                    duration = float.PositiveInfinity; break;
+                    endTime = float.PositiveInfinity; break;
                 default: throw new NotImplementedException();
             }
 
@@ -63,13 +65,13 @@ namespace EOSExt.EMP.Impl
                         {
                             empTarget.ClearTime(); // TODO: this would clear effect on instant shock 
                         }
-                        duration = float.PositiveInfinity; break;
+                        endTime = float.PositiveInfinity; break;
                     default: throw new NotImplementedException();
                 }
             }
         }
 
-        public void ChangeState(ActiveState newState) => StateReplicator.SetState(new pEMPState() { status = newState });
+        public void ChangeState(ActiveState newState) => StateReplicator?.SetState(new pEMPState() { status = newState });
 
         internal void SetupReplicator(uint replicatorID)
         {
@@ -81,6 +83,12 @@ namespace EOSExt.EMP.Impl
             : base(def.Position.ToVector3(), def.Range, float.NegativeInfinity)
         {
             this.def = def;
+        }
+
+        internal void Destroy()
+        {
+            StateReplicator = null;
+            def = null;
         }
     }
 }

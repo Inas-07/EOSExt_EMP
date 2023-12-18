@@ -39,7 +39,7 @@ namespace EOSExt.EMP.Impl.Handlers
             else
             {
                 _originalIntensity = _light.GetIntensity();
-                _originalColor = _light.m_color;
+                _originalColor = new Color(_light.m_color.r, _light.m_color.g, _light.m_color.b, _light.m_color.a);
                 State = EMPState.On;
             }
             handlers.Add(this);

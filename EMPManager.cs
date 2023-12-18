@@ -13,14 +13,14 @@ namespace EOSExt.EMP
 {
     public partial class EMPManager : GenericExpeditionDefinitionManager<pEMPDefinition>
     {
-        private readonly List<EMPController> _empTargets = new List<EMPController>();
-        private readonly List<EMPShock> _activeEMPShock = new List<EMPShock>();
+        private List<EMPController> _empTargets { get; } = new List<EMPController>();
+
+        private List<EMPShock> _activeEMPShock { get; } = new List<EMPShock>();
 
         public static EMPManager Current { get; private set; } = new();
 
-        public PlayerAgent LocalPlayerAgent { get; private set ;} = null;
+        public PlayerAgent LocalPlayerAgent { get; private set; } = null;
 
-             
         public void SetLocalPlayerAgent(PlayerAgent localPlayerAgent)
         {
             this.LocalPlayerAgent = localPlayerAgent;

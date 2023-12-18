@@ -34,7 +34,7 @@ namespace EOSExt.EMP.EMPComponent
 
             CheckSetup();
 
-            var player = PlayerManager.GetLocalPlayerAgent();
+            var player = EMPManager.Current.LocalPlayerAgent;
             if (player == null)
             {
                 return;
@@ -53,7 +53,7 @@ namespace EOSExt.EMP.EMPComponent
             InAnypEMP = false;
             foreach (var pEMP in EMPManager.Current.pEMPs)
             {
-                if (pEMP.StateReplicator.State.status != ActiveState.ENABLED) continue;
+                if (pEMP.State != ActiveState.ENABLED) continue;
 
                 if (pEMP.InRange(player.m_position))
                 {

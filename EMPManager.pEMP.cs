@@ -9,6 +9,7 @@ using ExtraObjectiveSetup;
 using ExtraObjectiveSetup.BaseClasses;
 using EOSExt.EMP.Definition;
 using GTFO.API;
+using EOSExt.EMP.EMPComponent;
 
 namespace EOSExt.EMP
 {
@@ -85,7 +86,6 @@ namespace EOSExt.EMP
                 EOSLogger.Warning($"pEMP_{pEMPDef.pEMPIndex} initialized");
             }
         }
-       
 
         internal void SetupHUDAndFlashlight()
         {
@@ -107,6 +107,8 @@ namespace EOSExt.EMP
 
         internal void SetupAmmoWeaponHandlers(InventorySlot slot)
         {
+            //EOSLogger.Error("SetupAmmoWeaponHandlers");
+
             void SetupAmmoWeaponHandlerForSlot(InventorySlot slot)
             {
                 var backpack = PlayerBackpackManager.LocalBackpack;

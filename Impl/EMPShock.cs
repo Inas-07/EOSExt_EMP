@@ -6,15 +6,15 @@ namespace EOSExt.EMP.Impl
     {
         public Vector3 position { get; internal set; }
         public float range { get; internal set; }
-        public float duration { get; internal set; }
+        public float endTime { get; internal set; }
 
-        public float RemainingTime => duration - Clock.Time;
+        public float RemainingTime => endTime - Clock.Time;
 
         public EMPShock(Vector3 position, float range, float duration)
         {
             this.position = position;
             this.range = range;
-            this.duration = Clock.Time + duration;
+            this.endTime = Clock.Time + duration;
         }
 
         public bool InRange(Vector3 position) => Vector3.Distance(position, this.position) < range;

@@ -11,10 +11,10 @@ namespace EOSExt.EMP.Impl
         private bool _hasHandler;
         private bool _setup;
 
-        public float duration { get; private set; }
+        public float endTime { get; private set; }
 
         [HideFromIl2Cpp]
-        private bool IsEMPActive => duration > Clock.Time;
+        private bool IsEMPActive => endTime > Clock.Time;
 
         [HideFromIl2Cpp]
         public Vector3 Position => transform.position;
@@ -25,12 +25,12 @@ namespace EOSExt.EMP.Impl
         {
             if (GameStateManager.CurrentStateName != eGameStateName.InLevel || !_setup)
                 return;
-            if (!float.IsPositiveInfinity(duration)) // handle pEMP 
-            {
-                duration = Clock.Time + EMPManager.Current.DurationFromPosition(transform.position);
-            }
+            //if (!float.IsPositiveInfinity(endTime)) // handle pEMP 
+            //{
+            //    endTime = Clock.Time + EMPManager.Current.DurationFromPosition(transform.position);
+            //}
 
-            if (duration > Clock.Time)
+            if (endTime > Clock.Time)
             {
                 Handler.ForceState(EMPState.Off);
             }
@@ -48,10 +48,10 @@ namespace EOSExt.EMP.Impl
         }
 
         [HideFromIl2Cpp]
-        public void AddTime(float time) => duration = Clock.Time + time;
+        public void AddTime(float time) => endTime = Clock.Time + time;
 
         [HideFromIl2Cpp]
-        public void ClearTime() => duration = Clock.Time - 1f;
+        public void ClearTime() => endTime = Clock.Time - 1f;
 
         [HideFromIl2Cpp]
         public void AssignHandler(EMPHandler handler)
