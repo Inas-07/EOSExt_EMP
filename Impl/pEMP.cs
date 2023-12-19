@@ -28,11 +28,22 @@ namespace EOSExt.EMP.Impl
 
     public class pEMP : EMPShock
     {
+        public readonly ItemToDisable DISABLE_NOTHING = new() {
+            BioTracker = false,
+            PlayerFlashLight = false,
+            PlayerHUD = false, 
+            Sentry = false,
+            EnvLight = false,
+            GunSight = false,
+        };
+
         public pEMPDefinition def { get; private set; }
 
         public StateReplicator<pEMPState> StateReplicator { get; private set; }
 
         public ActiveState State => StateReplicator != null ? StateReplicator.State.status : ActiveState.DISABLED;
+
+        public ItemToDisable ItemToDisable => def != null ? def.ItemToDisable : DISABLE_NOTHING;
 
         public void OnStateChanged(pEMPState oldState, pEMPState newState, bool isRecall)
         {
@@ -65,7 +76,7 @@ namespace EOSExt.EMP.Impl
                         {
                             empTarget.ClearTime(); // TODO: this would clear effect on instant shock 
                         }
-                        endTime = float.PositiveInfinity; break;
+                        break;
                     default: throw new NotImplementedException();
                 }
             }
@@ -82,7 +93,7 @@ namespace EOSExt.EMP.Impl
         public pEMP(pEMPDefinition def)
             : base(def.Position.ToVector3(), def.Range, float.NegativeInfinity)
         {
-            this.def = def;
+            this.def = new(def);
         }
 
         internal void Destroy()

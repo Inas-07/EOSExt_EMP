@@ -57,12 +57,12 @@ namespace EOSExt.EMP.EMPComponent
 
                 if (pEMP.InRange(player.m_position))
                 {
-                    itemToDisable.BioTracker = itemToDisable.BioTracker || pEMP.def.ItemToDisable.BioTracker;
-                    itemToDisable.PlayerFlashLight = itemToDisable.PlayerFlashLight || pEMP.def.ItemToDisable.PlayerFlashLight;
-                    itemToDisable.PlayerHUD = itemToDisable.PlayerHUD || pEMP.def.ItemToDisable.PlayerHUD;
+                    itemToDisable.BioTracker = itemToDisable.BioTracker || pEMP.ItemToDisable.BioTracker;
+                    itemToDisable.PlayerFlashLight = itemToDisable.PlayerFlashLight || pEMP.ItemToDisable.PlayerFlashLight;
+                    itemToDisable.PlayerHUD = itemToDisable.PlayerHUD || pEMP.ItemToDisable.PlayerHUD;
                     //itemToDisable.EnvLight |= pEMP.def.ItemToDisable.EnvLight;
-                    itemToDisable.GunSight = itemToDisable.GunSight || pEMP.def.ItemToDisable.GunSight;
-                    itemToDisable.Sentry = itemToDisable.Sentry || pEMP.def.ItemToDisable.Sentry;
+                    itemToDisable.GunSight = itemToDisable.GunSight || pEMP.ItemToDisable.GunSight;
+                    itemToDisable.Sentry = itemToDisable.Sentry || pEMP.ItemToDisable.Sentry;
                     InAnypEMP = true;
                 }
             }

@@ -21,5 +21,26 @@ namespace EOSExt.EMP.Definition
         public float Range { set; get; } = 0.0f;
 
         public ItemToDisable ItemToDisable { get; set; } = new();
+
+        public pEMPDefinition() { }
+
+        public pEMPDefinition(pEMPDefinition other)
+        {
+            pEMPIndex = other.pEMPIndex;
+            Position = new() { 
+                x = other.Position.x,
+                y = other.Position.y,
+                z = other.Position.z
+            };
+            Range = other.Range;
+            ItemToDisable = new() {
+                BioTracker = other.ItemToDisable.BioTracker,
+                PlayerHUD = other.ItemToDisable.PlayerHUD,
+                PlayerFlashLight = other.ItemToDisable.PlayerFlashLight,
+                EnvLight = other.ItemToDisable.EnvLight,
+                GunSight = other.ItemToDisable.GunSight,
+                Sentry = other.ItemToDisable.Sentry
+            };
+        }
     }
 }
