@@ -41,7 +41,7 @@ namespace EOSExt.EMP.Impl.Handlers
         {
             foreach (Component target in _targets)
                 target.gameObject.SetActive(false);
-            GuiManager.NavMarkerLayer.SetVisible(false);
+            //GuiManager.NavMarkerLayer.SetVisible(false); // marker still visible
             //EOSLogger.Debug("Player HUD off");
         }
 
@@ -49,15 +49,14 @@ namespace EOSExt.EMP.Impl.Handlers
         {
             foreach (Component target in _targets)
                 target.gameObject.SetActive(true);
-            GuiManager.NavMarkerLayer.SetVisible(true);
-            //EOSLogger.Debug("Player HUD on");
+            //GuiManager.NavMarkerLayer.SetVisible(true); // marker still visible
         }
 
         protected override void FlickerDevice()
         {
             foreach (RectTransformComp target in _targets)
                 target.SetVisible(FlickerUtil());
-            GuiManager.NavMarkerLayer.SetVisible(FlickerUtil());
+            //GuiManager.NavMarkerLayer.SetVisible(FlickerUtil()); // marker still visible
         }
     }
 }

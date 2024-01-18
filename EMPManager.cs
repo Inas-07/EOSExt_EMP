@@ -21,19 +21,20 @@ namespace EOSExt.EMP
 
         public PlayerAgent LocalPlayerAgent { get; private set; } = null;
 
-        public void SetLocalPlayerAgent(PlayerAgent localPlayerAgent)
+        internal void SetLocalPlayerAgent(PlayerAgent localPlayerAgent)
         {
             this.LocalPlayerAgent = localPlayerAgent;
-            if (PlayerpEMPComponent.Current != null)
-            {
-                LevelAPI.OnBuildStart -= PlayerpEMPComponent.Current.Reset;
-                LevelAPI.OnLevelCleanup -= PlayerpEMPComponent.Current.Reset;
-            }
 
             PlayerpEMPComponent.Current = localPlayerAgent.gameObject.AddComponent<PlayerpEMPComponent>();
-            LevelAPI.OnBuildStart += PlayerpEMPComponent.Current.Reset;
-            LevelAPI.OnLevelCleanup += PlayerpEMPComponent.Current.Reset;
+            PlayerpEMPComponent.Current.player = localPlayerAgent;
+
             EOSLogger.Debug("LocalPlayerAgent setup completed");
+        }
+
+        internal void OnLocalPlayerAgentDestroy()
+        {
+            PlayerpEMPComponent.Current = null;
+            EOSLogger.Debug("LocalPlayerAgent Destroyed");
         }
 
         public void AddTarget(EMPController target) => _empTargets.Add(target);
@@ -48,7 +49,8 @@ namespace EOSExt.EMP
             }
             else
             {
-                _activeEMPShock.Add(new EMPShock(position, range, duration));
+                var endTime = Clock.Time + duration;
+                _activeEMPShock.Add(new EMPShock(position, range, endTime));
                 foreach (EMPController empTarget in _empTargets)
                 {
                     if (Vector3.Distance(position, empTarget.Position) < range)
@@ -83,6 +85,9 @@ namespace EOSExt.EMP
             EMPWardenEvents.Init();
             LevelAPI.OnBuildStart += Clear;
             LevelAPI.OnLevelCleanup += Clear;
+
+            Events.InventoryWielded += SetupAmmoWeaponHandlers;
+
             pEMPInit();
         }
 

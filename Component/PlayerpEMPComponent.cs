@@ -10,11 +10,13 @@ namespace EOSExt.EMP.EMPComponent
     {
         private float nextUpdateTime = float.NaN;
 
-        public const float UPDATE_INTERVAL = 1.0f;
+        public const float UPDATE_INTERVAL = 0.2f;
 
         public static PlayerpEMPComponent Current { get; internal set; } = null;
 
         public bool InAnypEMP { get; private set; } = false;
+
+        public PlayerAgent player { get; internal set; }
 
         private void CheckSetup()
         {
@@ -34,7 +36,7 @@ namespace EOSExt.EMP.EMPComponent
 
             CheckSetup();
 
-            var player = EMPManager.Current.LocalPlayerAgent;
+            //var player = EMPManager.Current.LocalPlayerAgent;
             if (player == null)
             {
                 return;
@@ -55,7 +57,7 @@ namespace EOSExt.EMP.EMPComponent
             {
                 if (pEMP.State != ActiveState.ENABLED) continue;
 
-                if (pEMP.InRange(player.m_position))
+                if (pEMP.InRange(player.Position))
                 {
                     itemToDisable.BioTracker = itemToDisable.BioTracker || pEMP.ItemToDisable.BioTracker;
                     itemToDisable.PlayerFlashLight = itemToDisable.PlayerFlashLight || pEMP.ItemToDisable.PlayerFlashLight;
@@ -123,9 +125,15 @@ namespace EOSExt.EMP.EMPComponent
             }
         }
 
-        public void Reset()
+        //public void Reset()
+        //{
+        //    nextUpdateTime = float.NaN;
+        //}
+
+        void OnDestroy()
         {
-            nextUpdateTime = float.NaN;
+            EMPManager.Current.OnLocalPlayerAgentDestroy();
+            player = null;
         }
 
         static PlayerpEMPComponent()

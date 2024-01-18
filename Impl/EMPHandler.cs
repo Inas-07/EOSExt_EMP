@@ -48,8 +48,10 @@ namespace EOSExt.EMP.Impl
                     _deviceState = DeviceState.Off;
                     DeviceOff();
                 }
-                else
+                else // state == FlickerOn or FlickerOff
+                {
                     _deviceState = DeviceState.Unknown;
+                }
             }
             else
             {
@@ -62,20 +64,22 @@ namespace EOSExt.EMP.Impl
         {
             if (_destroyed)
                 return;
+
             if (isEMPD && State == EMPState.On)
             {
                 float randomDelay = GetRandomDelay(MinDelay, MaxDelay);
                 State = EMPState.FlickerOff;
                 _delayTimer = Clock.Time + randomDelay;
-                _stateTimer = Clock.Time + FlickerDuration + randomDelay;
+                _stateTimer = Clock.Time + randomDelay + FlickerDuration;
             }
             if (!isEMPD && State == EMPState.Off)
             {
-                float randomDelay = GetRandomDelay(0.0f, 1.5f);
+                float randomDelay = GetRandomDelay(MinDelay, MaxDelay);
                 State = EMPState.FlickerOn;
                 _delayTimer = Clock.Time + randomDelay;
-                _stateTimer = Clock.Time + FlickerDuration + randomDelay;
+                _stateTimer = Clock.Time + randomDelay + FlickerDuration;
             }
+
             switch (State)
             {
                 case EMPState.On:
@@ -85,7 +89,7 @@ namespace EOSExt.EMP.Impl
                     _deviceState = DeviceState.On;
                     if (!IsDeviceOnPlayer)
                         break;
-                    _isLocalPlayerDisabled = false;
+                    _isLocalPlayerDisabled = false; // TODO: EMP effect is separated on different parts, so this field should be deprecated
                     break;
                 case EMPState.FlickerOff:
                     if (_delayTimer > Clock.Time)
@@ -135,9 +139,9 @@ namespace EOSExt.EMP.Impl
         }
 
         // EEC.Utils.Rand
-        protected static System.Random _rand = new System.Random();
+        protected static System.Random _rand { get; private set; } = new System.Random();
 
-        protected static float GetRandomDelay(float min, float max) => (float)(min + _rand.NextDouble() * (max - min));
+        protected static float GetRandomDelay(float min, float max) => min + GetRandom01() * (max - min);
 
         protected static float GetRandom01() => (float)_rand.NextDouble();
 

@@ -30,7 +30,10 @@ namespace EOSExt.EMP.Impl
             //    endTime = Clock.Time + EMPManager.Current.DurationFromPosition(transform.position);
             //}
 
-            if (endTime > Clock.Time)
+            // TODO: debug instant shock
+            EOSLogger.Warning($"OnEnable, endTime > Clock.Time? {endTime > Clock.Time}");
+
+            if (endTime > Clock.Time)// emp is not ended, still in effect
             {
                 Handler.ForceState(EMPState.Off);
             }
