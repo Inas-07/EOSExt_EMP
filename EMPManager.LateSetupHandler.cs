@@ -45,6 +45,7 @@ namespace EOSExt.EMP
                     }
 
                     backpackItem.Instance.gameObject.AddComponent<EMPController>().AssignHandler(new EMPGunSightHandler());
+                    EOSLogger.Log($"pEMP: Backpack {slot} setup completed");
                 }
                 else
                 {
@@ -60,7 +61,6 @@ namespace EOSExt.EMP
                     break;
                 default: return;
             }
-            EOSLogger.Log($"pEMP: Backpack {slot} setup completed");
         }
 
         internal void SetupToolHandler()

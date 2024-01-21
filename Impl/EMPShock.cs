@@ -1,16 +1,31 @@
-﻿using UnityEngine;
+﻿using EOSExt.EMP.Definition;
+using UnityEngine;
 
 namespace EOSExt.EMP.Impl
 {
     public class EMPShock
     {
-        public Vector3 position { get; internal set; }
+        public readonly ItemToDisable DISABLE_NOTHING = new()
+        {
+            BioTracker = false,
+            PlayerFlashLight = false,
+            PlayerHUD = false,
+            Sentry = false,
+            EnvLight = false,
+            GunSight = false,
+        };
+
+        public Vector3 position { get; protected set; }
         
-        public float range { get; internal set; }
+        public float range { get; protected set; }
 
-        public float endTime { get; internal set; }
+        public float endTime { get; protected set; }
 
-        public float RemainingTime => endTime - Clock.Time;
+        public virtual float RemainingTime => endTime - Clock.Time;
+
+        public virtual ItemToDisable ItemToDisable => new() { 
+            // default: disable all
+        };
 
         public EMPShock(Vector3 position, float range, float endTime)
         {

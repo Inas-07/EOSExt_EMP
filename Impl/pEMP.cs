@@ -28,22 +28,15 @@ namespace EOSExt.EMP.Impl
 
     public class pEMP : EMPShock
     {
-        public readonly ItemToDisable DISABLE_NOTHING = new() {
-            BioTracker = false,
-            PlayerFlashLight = false,
-            PlayerHUD = false, 
-            Sentry = false,
-            EnvLight = false,
-            GunSight = false,
-        };
-
         public pEMPDefinition def { get; private set; }
 
         public StateReplicator<pEMPState> StateReplicator { get; private set; }
 
         public ActiveState State => StateReplicator != null ? StateReplicator.State.status : ActiveState.DISABLED;
 
-        public ItemToDisable ItemToDisable => def != null ? def.ItemToDisable : DISABLE_NOTHING;
+        public override float RemainingTime => State == ActiveState.ENABLED ? float.PositiveInfinity : float.NegativeInfinity;
+
+        public override ItemToDisable ItemToDisable => def != null ? def.ItemToDisable : DISABLE_NOTHING;
 
         public void OnStateChanged(pEMPState oldState, pEMPState newState, bool isRecall)
         {

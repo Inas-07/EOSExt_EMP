@@ -31,7 +31,6 @@ namespace EOSExt.EMP.Impl
             //}
 
             // TODO: debug instant shock
-            EOSLogger.Warning($"OnEnable, endTime > Clock.Time? {endTime > Clock.Time}");
 
             if (endTime > Clock.Time)// emp is not ended, still in effect
             {
