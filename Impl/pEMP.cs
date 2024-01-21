@@ -32,7 +32,7 @@ namespace EOSExt.EMP.Impl
 
         public StateReplicator<pEMPState> StateReplicator { get; private set; }
 
-        public ActiveState State => StateReplicator != null ? StateReplicator.State.status : ActiveState.DISABLED;
+        public override ActiveState State => StateReplicator != null ? StateReplicator.State.status : ActiveState.DISABLED;
 
         public override float RemainingTime => State == ActiveState.ENABLED ? float.PositiveInfinity : float.NegativeInfinity;
 

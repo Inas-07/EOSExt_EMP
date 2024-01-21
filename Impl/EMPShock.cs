@@ -1,4 +1,5 @@
 ﻿using EOSExt.EMP.Definition;
+using FloLib.Networks.Replications;
 using UnityEngine;
 
 namespace EOSExt.EMP.Impl
@@ -14,6 +15,8 @@ namespace EOSExt.EMP.Impl
             EnvLight = false,
             GunSight = false,
         };
+
+        public virtual ActiveState State => RemainingTime > 0f ? ActiveState.ENABLED : ActiveState.DISABLED;
 
         public Vector3 position { get; protected set; }
         

@@ -8,6 +8,7 @@ using EOSExt.EMP.Impl;
 using EOSExt.EMP.EMPComponent;
 using EOSExt.EMP.Definition;
 using ExtraObjectiveSetup.BaseClasses;
+using System.Collections.Concurrent;
 
 namespace EOSExt.EMP
 {
@@ -15,11 +16,14 @@ namespace EOSExt.EMP
     {
         private List<EMPController> _empTargets { get; } = new List<EMPController>();
 
-        private List<EMPShock> _activeEMPShock { get; } = new List<EMPShock>();
+        private ConcurrentBag<EMPShock> _activeEMPs { get; } = new();
+        
+        public IEnumerable<EMPShock> ActiveEMPs => _activeEMPs;
 
         public static EMPManager Current { get; private set; } = new();
 
         public PlayerAgent LocalPlayerAgent { get; private set; } = null;
+
 
         internal void SetLocalPlayerAgent(PlayerAgent localPlayerAgent)
         {
@@ -27,7 +31,6 @@ namespace EOSExt.EMP
 
             PlayerpEMPComponent.Current = localPlayerAgent.gameObject.AddComponent<PlayerpEMPComponent>();
             PlayerpEMPComponent.Current.player = localPlayerAgent;
-
             EOSLogger.Debug("LocalPlayerAgent setup completed");
         }
 
@@ -50,7 +53,7 @@ namespace EOSExt.EMP
             else
             {
                 var endTime = Clock.Time + duration;
-                _activeEMPShock.Add(new EMPShock(position, range, endTime));
+                _activeEMPs.Add(new EMPShock(position, range, endTime));
                 foreach (EMPController empTarget in _empTargets)
                 {
                     if (Vector3.Distance(position, empTarget.Position) < range)
@@ -61,13 +64,13 @@ namespace EOSExt.EMP
 
         public float DurationFromPosition(Vector3 position)
         {
-            _activeEMPShock.RemoveAll(e => Mathf.Round(e.RemainingTime) <= 0);
+            //_activeEMPs.RemoveAll(e => Mathf.Round(e.RemainingTime) <= 0);
             float totalDurationForPosition = 0;
-            foreach (EMPShock active in _activeEMPShock)
+            foreach (EMPShock emp in _activeEMPs)
             {
-                if (active.InRange(position))
+                if (emp.InRange(position))
                 {
-                    totalDurationForPosition += active.RemainingTime;
+                    totalDurationForPosition += emp.RemainingTime;
                 }
             }
             return totalDurationForPosition;
@@ -76,7 +79,7 @@ namespace EOSExt.EMP
         private void Clear()
         {
             _empTargets.Clear();
-            _activeEMPShock.Clear();
+            _activeEMPs.Clear();
             EMPHandler.Cleanup();
         }
 
@@ -87,11 +90,24 @@ namespace EOSExt.EMP
             LevelAPI.OnLevelCleanup += Clear;
 
             Events.InventoryWielded += SetupAmmoWeaponHandlers;
-
+            EventAPI.OnManagersSetup += () =>
+            {
+                _activeEMPCheckCoroutine = CoroutineManager.StartPersistantCoroutine();
+            };
             pEMPInit();
         }
 
         public IEnumerable<EMPController> EMPTargets => _empTargets;
+
+        private Coroutine _activeEMPCheckCoroutine = null;
+
+        private System.Collections.IEnumerator activeEMPCheck()
+        {
+            while(true)
+            {
+                
+            }
+        }
 
         private EMPManager()
         {

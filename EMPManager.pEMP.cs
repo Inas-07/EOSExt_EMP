@@ -53,7 +53,6 @@ namespace EOSExt.EMP
         {
             LevelAPI.OnBuildStart += () => { pEMPClear(); InitializepEMPs(); };
             LevelAPI.OnLevelCleanup += pEMPClear;
-
         }
 
         private void pEMPClear()
