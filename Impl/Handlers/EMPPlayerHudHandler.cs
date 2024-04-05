@@ -1,5 +1,6 @@
 ﻿using EOSExt.EMP.Impl;
 using GTFO.API;
+using Player;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -41,6 +42,11 @@ namespace EOSExt.EMP.Impl.Handlers
         {
             foreach (Component target in _targets)
                 target.gameObject.SetActive(false);
+
+            foreach(var p in PlayerManager.PlayerAgentsInLevel)
+            {
+                p.NavMarker.SetMarkerVisible(false);
+            }
             //GuiManager.NavMarkerLayer.SetVisible(false); // marker still visible
             //EOSLogger.Debug("Player HUD off");
         }
@@ -49,6 +55,11 @@ namespace EOSExt.EMP.Impl.Handlers
         {
             foreach (Component target in _targets)
                 target.gameObject.SetActive(true);
+
+            foreach (var p in PlayerManager.PlayerAgentsInLevel)
+            {
+                p.NavMarker.SetMarkerVisible(true);
+            }
             //GuiManager.NavMarkerLayer.SetVisible(true); // marker still visible
         }
 

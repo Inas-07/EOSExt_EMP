@@ -31,5 +31,4 @@ namespace EOSExt.EMP.Patches
             return true;
         }
     }
-
 }

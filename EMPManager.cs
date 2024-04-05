@@ -90,10 +90,10 @@ namespace EOSExt.EMP
             LevelAPI.OnLevelCleanup += Clear;
 
             Events.InventoryWielded += SetupAmmoWeaponHandlers;
-            EventAPI.OnManagersSetup += () =>
-            {
-                _activeEMPCheckCoroutine = CoroutineManager.StartPersistantCoroutine();
-            };
+            //EventAPI.OnManagersSetup += () =>
+            //{
+            //    _activeEMPCheckCoroutine = CoroutineManager.StartPersistantCoroutine();
+            //};
             pEMPInit();
         }
 
