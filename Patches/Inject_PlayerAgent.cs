@@ -11,9 +11,10 @@ namespace EOSExt.EMP.Patches
         [HarmonyPatch(nameof(PlayerAgent.Setup))]
         internal static void Post_Setup(PlayerAgent __instance)
         {
-            if (!__instance.IsLocallyOwned)
-                return;
-            EMPManager.Current.SetLocalPlayerAgent(__instance);
+            if (__instance.IsLocallyOwned)
+            {
+                EMPManager.Current.SetLocalPlayerAgent(__instance);
+            }
         }
     }
 }

@@ -1,17 +1,9 @@
 ﻿using ExtraObjectiveSetup.Utils;
+using System;
+using System.Collections.Generic;
 
 namespace EOSExt.EMP.Definition
 {
-    public class ItemToDisable
-    {
-        public bool BioTracker { set; get; } = true;
-        public bool PlayerHUD { set; get; } = true;
-        public bool PlayerFlashLight { set; get; } = true;
-        public bool EnvLight { set; get; } = true;
-        public bool GunSight { set; get; } = true;
-        public bool Sentry { set; get; } = true;
-    }
-
     public class pEMPDefinition
     {
         public uint pEMPIndex { get; set; } = 0u;
@@ -41,6 +33,20 @@ namespace EOSExt.EMP.Definition
                 GunSight = other.ItemToDisable.GunSight,
                 Sentry = other.ItemToDisable.Sentry
             };
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is pEMPDefinition definition &&
+                   pEMPIndex == definition.pEMPIndex &&
+                   Position.ToVector3() == definition.Position.ToVector3() && 
+                   Range == definition.Range &&
+                   ItemToDisable.Equals(definition.ItemToDisable);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(pEMPIndex, Position, Range, ItemToDisable);
         }
     }
 }

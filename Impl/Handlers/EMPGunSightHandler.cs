@@ -9,7 +9,7 @@ namespace EOSExt.EMP.Impl.Handlers
 {
     public class EMPGunSightHandler : EMPHandler
     {
-        public static IEnumerable<EMPGunSightHandler> Handlers => handlers;
+        public static IEnumerable<EMPGunSightHandler> Instances => handlers;
 
         private static List<EMPGunSightHandler> handlers = new();
 
@@ -23,7 +23,7 @@ namespace EOSExt.EMP.Impl.Handlers
 
         private void SetupGunSights()
         {
-            var componentsInChildren = gameObject.GetComponentsInChildren<Renderer>(true);
+            var componentsInChildren = go.GetComponentsInChildren<Renderer>(true);
             if (componentsInChildren != null)
             {
                 _sightPictures = componentsInChildren
@@ -35,7 +35,7 @@ namespace EOSExt.EMP.Impl.Handlers
 
             if (_sightPictures == null || _sightPictures.Length < 1)
             {
-                EOSLogger.Error($"Unable to find sight on {gameObject.name}!");
+                EOSLogger.Error($"Unable to find sight on {go.name}!");
             }
         }
 
@@ -50,7 +50,7 @@ namespace EOSExt.EMP.Impl.Handlers
 
         protected override void DeviceOn() => ForEachSights(x => x.SetActive(true));
 
-        protected override void FlickerDevice() => ForEachSights(x => x.SetActive(FlickerUtil()));
+        protected override void FlickerDevice() => ForEachSights(x => x.SetActive(Random.FlickerUtil()));
 
         private void ForEachSights(Action<GameObject> action)
         {

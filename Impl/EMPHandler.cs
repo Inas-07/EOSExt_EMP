@@ -1,155 +1,74 @@
-﻿using UnityEngine;
+﻿using ExtraObjectiveSetup.Utils;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace EOSExt.EMP.Impl
 {
-    public abstract class EMPHandler
+    public abstract partial class EMPHandler
     {
-        protected DeviceState _deviceState;
-        protected float _stateTimer;
-        private static bool _isLocalPlayerDisabled;
-        private float _delayTimer;
-        private bool _destroyed;
+        protected static Dictionary<long, EMPHandler> Handlers { get; } = new();
+
+        private static long next_handler_id = 0;
+
+        public static IEnumerable<EMPHandler> AllHandlers => Handlers.Values;
+
+        protected long HandlerId { get; private set; }
 
         public EMPState State { get; protected set; }
 
-        public EMPController controller { get; protected set; }
+        protected HashSet<EMPShock> AffectedBy { get; } = new();
 
-        public GameObject gameObject { get; protected set; }
+        public GameObject go { get; protected set; }
 
-        public static bool IsLocalPlayerDisabled => _isLocalPlayerDisabled && GameStateManager.CurrentStateName == eGameStateName.InLevel;
+        public Vector3 position => go?.transform.position ?? Vector3.zero;
 
-        protected virtual float FlickerDuration => 0.2f;
+        public virtual bool IsEMPed()
+        {
+            foreach(var emp in AffectedBy)
+            {
+                if (Clock.Time < emp.endTime) return true;
+            }
 
-        protected virtual float MinDelay => 0.0f;
-
-        protected virtual float MaxDelay => 1.5f;
-
-        protected virtual bool IsDeviceOnPlayer => false;
+            return false;
+        }
 
         public virtual void Setup(GameObject gameObject, EMPController controller)
         {
-            this.gameObject = gameObject;
-            this.controller = controller;
-        }
+            go = gameObject;
 
-        public static void Cleanup() => _isLocalPlayerDisabled = false;
-
-        public void ForceState(EMPState state)
-        {
-            if (State == state)
-                return;
-            State = state;
-            _delayTimer = Clock.Time - 1f;
-            _stateTimer = Clock.Time - 1f;
-            if (state != EMPState.On)
+            foreach (var emp in EMPManager.Current.ActiveEMPs)
             {
-                if (state == EMPState.Off)
+                if(Vector3.Distance(go.transform.position, emp.position) < emp.range)
                 {
-                    _deviceState = DeviceState.Off;
-                    DeviceOff();
-                }
-                else // state == FlickerOn or FlickerOff
-                {
-                    _deviceState = DeviceState.Unknown;
+                    AddAffectedBy(emp);
                 }
             }
-            else
+
+            HandlerId = next_handler_id++;
+            if (Handlers.ContainsKey(HandlerId))
             {
-                _deviceState = DeviceState.On;
-                DeviceOn();
+                EOSLogger.Warning("What the hell we got a duplicate EMPHandler ID!?");
             }
+
+            Handlers[HandlerId] = this;
         }
 
-        public void Tick(bool isEMPD)
+        public virtual void OnDespawn()
         {
-            if (_destroyed)
-                return;
-
-            if (isEMPD && State == EMPState.On)
-            {
-                float randomDelay = GetRandomDelay(MinDelay, MaxDelay);
-                State = EMPState.FlickerOff;
-                _delayTimer = Clock.Time + randomDelay;
-                _stateTimer = Clock.Time + randomDelay + FlickerDuration;
-            }
-            if (!isEMPD && State == EMPState.Off)
-            {
-                float randomDelay = GetRandomDelay(MinDelay, MaxDelay);
-                State = EMPState.FlickerOn;
-                _delayTimer = Clock.Time + randomDelay;
-                _stateTimer = Clock.Time + randomDelay + FlickerDuration;
-            }
-
-            switch (State)
-            {
-                case EMPState.On:
-                    if (_deviceState == DeviceState.On)
-                        break;
-                    DeviceOn();
-                    _deviceState = DeviceState.On;
-                    if (!IsDeviceOnPlayer)
-                        break;
-                    _isLocalPlayerDisabled = false; // TODO: EMP effect is separated on different parts, so this field should be deprecated
-                    break;
-                case EMPState.FlickerOff:
-                    if (_delayTimer > Clock.Time)
-                        break;
-                    if (Clock.Time < _stateTimer)
-                    {
-                        FlickerDevice();
-                        break;
-                    }
-                    State = EMPState.Off;
-                    break;
-                case EMPState.Off:
-                    if (_deviceState == DeviceState.Off)
-                        break;
-                    DeviceOff();
-                    _deviceState = DeviceState.Off;
-                    if (!IsDeviceOnPlayer)
-                        break;
-                    _isLocalPlayerDisabled = true;
-                    break;
-                case EMPState.FlickerOn:
-                    if (_delayTimer > Clock.Time)
-                        break;
-                    if (Clock.Time < _stateTimer)
-                    {
-                        FlickerDevice();
-                        break;
-                    }
-                    State = EMPState.On;
-                    break;
-            }
+            _destroyed = true;
+            AffectedBy.Clear();
+            Handlers.Remove(HandlerId);
+            go = null;
         }
 
-        public void OnDespawn() => _destroyed = true;
+        public void AddAffectedBy(EMPShock empShock) => AffectedBy.Add(empShock);
 
-        protected abstract void FlickerDevice();
+        public void RemoveAffectedBy(EMPShock empShock) => AffectedBy.Remove(empShock);
 
-        protected abstract void DeviceOn();
-
-        protected abstract void DeviceOff();
-
-        protected enum DeviceState
+        internal void RemoveEndedEMPs()
         {
-            On,
-            Off,
-            Unknown,
-        }
-
-        // EEC.Utils.Rand
-        protected static System.Random _rand { get; private set; } = new System.Random();
-
-        protected static float GetRandomDelay(float min, float max) => min + GetRandom01() * (max - min);
-
-        protected static float GetRandom01() => (float)_rand.NextDouble();
-
-        protected static int GetRandomRange(int min, int maxPlusOne) => _rand.Next(min, maxPlusOne);
-
-        protected static int Index(int length) => _rand.Next(0, length);
-
-        protected static bool FlickerUtil(int oneInX = 2) => Index(oneInX) == 0;
-
+            float time = Clock.Time;
+            AffectedBy.RemoveWhere(emp => emp.endTime < time);
+        } 
     }
 }

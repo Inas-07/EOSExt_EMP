@@ -3,27 +3,19 @@ using ExtraObjectiveSetup.Utils;
 using Player;
 using GameData;
 using Gear;
-using EOSExt.EMP.Impl;
 using EOSExt.EMP.Impl.Handlers;
 using ExtraObjectiveSetup;
 using ExtraObjectiveSetup.BaseClasses;
 using EOSExt.EMP.Definition;
 using GTFO.API;
 using EOSExt.EMP.EMPComponent;
+using EOSExt.EMP.Impl.PersistentEMP;
 
 namespace EOSExt.EMP
 {
     public partial class EMPManager: GenericExpeditionDefinitionManager<pEMPDefinition>
     {
-        public struct pEMPState
-        {
-            public uint pEMPIndex;
-            public bool enabled;
-            public pEMPState() { }
-            public pEMPState(pEMPState o) { o.pEMPIndex = pEMPIndex; o.enabled = enabled; }
-        }
-
-        private readonly Dictionary<uint, pEMP> _pEMPs = new();
+        private Dictionary<uint, pEMP> _pEMPs { get; } = new();
         
         public IEnumerable<pEMP> pEMPs => _pEMPs.Values;
 
@@ -75,13 +67,11 @@ namespace EOSExt.EMP
                 if (allotedID == EOSNetworking.INVALID_ID)
                 {
                     EOSLogger.Error("SetuppEMPReplicators: replicator ID depleted, cannot set up!");
+                    continue;
                 }
-                else
-                {
-                    pEMP.SetupReplicator(allotedID);
-                    EOSLogger.Debug($"SetuppEMPReplicators: replicator_{allotedID} setup! ");
-                }
-                EOSLogger.Warning($"pEMP_{pEMPDef.pEMPIndex} initialized");
+
+                pEMP.SetupReplicator(allotedID);
+                EOSLogger.Debug($"pEMP_{pEMPDef.pEMPIndex} initialized");
             }
         }
     }

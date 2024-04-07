@@ -2,32 +2,28 @@
 using Gear;
 using ExtraObjectiveSetup.Utils;
 using UnityEngine;
-using System.Collections.Generic;
-using GTFO.API;
 
 namespace EOSExt.EMP.Impl.Handlers
 {
     public class EMPBioTrackerHandler : EMPHandler
     {
-        private static List<EMPBioTrackerHandler> handlers = new();
-
-        public static IEnumerable<EMPBioTrackerHandler> Handlers => handlers;
-
-        private static void Clear()
-        {
-            handlers.Clear();
-        }
+        public static EMPBioTrackerHandler Instance { get; private set; }
 
         static EMPBioTrackerHandler()
         {
-            LevelAPI.OnBuildStart += Clear;
-            LevelAPI.OnLevelCleanup += Clear;
+
         }
 
         private EnemyScanner _scanner;
 
         public override void Setup(GameObject gameObject, EMPController controller)
         {
+            if(Instance != null)
+            {
+                EOSLogger.Warning("EMP: re-setup EMPPlayerFlashLightHandler");
+                Instance.OnDespawn();
+            }
+
             base.Setup(gameObject, controller);
             _scanner = gameObject.GetComponent<EnemyScanner>();
             if (_scanner == null)
@@ -35,7 +31,13 @@ namespace EOSExt.EMP.Impl.Handlers
                 EOSLogger.Error("Couldn't get bio-tracker component!");
             }
 
-            handlers.Add(this);
+            Instance = this;
+        }
+
+        public override void OnDespawn()
+        {
+            base.OnDespawn();
+            Instance = null;
         }
 
         protected override void DeviceOff()
@@ -46,7 +48,6 @@ namespace EOSExt.EMP.Impl.Handlers
 
         protected override void DeviceOn() => _scanner.m_graphics.m_display.enabled = true;
 
-        protected override void FlickerDevice() => _scanner.enabled = FlickerUtil();
-
+        protected override void FlickerDevice() => _scanner.enabled = Random.FlickerUtil();
     }
 }

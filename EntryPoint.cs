@@ -14,7 +14,7 @@ namespace EOSExt.EMP
     {
         public const string AUTHOR = "Inas";
         public const string PLUGIN_NAME = "EOSExt.EMP";
-        public const string VERSION = "1.0.5";
+        public const string VERSION = "1.1.1";
 
         private Harmony m_Harmony;
         

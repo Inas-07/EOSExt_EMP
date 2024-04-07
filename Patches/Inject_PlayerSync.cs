@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using Player;
 using EOSExt.EMP.Impl;
+using EOSExt.EMP.Impl.Handlers;
 
 namespace EOSExt.EMP.Patches
 {
@@ -10,14 +11,17 @@ namespace EOSExt.EMP.Patches
         [HarmonyPrefix]
         [HarmonyWrapSafe]
         [HarmonyPatch(nameof(PlayerSync.WantsToSetFlashlightEnabled))]
-        internal static bool Pre_WantsToSetFlashlightEnabled(PlayerSync __instance, bool enable)
+        internal static void Pre_WantsToSetFlashlightEnabled(PlayerSync __instance, ref bool enable)
         {
-            if (EMPHandler.IsLocalPlayerDisabled)
-                return false;
-            if (enable != __instance.m_agent.Inventory.FlashlightEnabled)
-                return true;
-            __instance.WantsToSetFlashlightEnabled(!__instance.m_agent.Inventory.FlashlightEnabled);
-            return false;
+            if (EMPPlayerFlashLightHandler.Instance != null 
+                && EMPPlayerFlashLightHandler.Instance.IsEMPed())
+            {
+                enable = false;
+            }
+            //if (enable != __instance.m_agent.Inventory.FlashlightEnabled)
+            //    return true;
+            //__instance.WantsToSetFlashlightEnabled(!__instance.m_agent.Inventory.FlashlightEnabled);
+            //return false;
         }
     }
 }

@@ -1,26 +1,16 @@
 ﻿using AK;
 using ExtraObjectiveSetup.Utils;
-using GTFO.API;
 using UnityEngine;
-using System.Collections.Generic;
 
 namespace EOSExt.EMP.Impl.Handlers
 {
     public class EMPSentryHandler : EMPHandler
     {
-        private static List<EMPSentryHandler> handlers = new();
-
-        public static IEnumerable<EMPSentryHandler> Handlers => handlers;
-
-        private static void Clear()
-        {
-            handlers.Clear();
-        }
+        public static EMPSentryHandler Instance { get; private set; }
 
         static EMPSentryHandler()
         {
-            LevelAPI.OnBuildStart += Clear;
-            LevelAPI.OnLevelCleanup += Clear;
+
         }
 
         private static Color _offColor = new Color()
@@ -30,11 +20,18 @@ namespace EOSExt.EMP.Impl.Handlers
             b = 0.0f,
             a = 0.0f
         };
+
         private SentryGunInstance _sentry;
         private SentryGunInstance_ScannerVisuals_Plane _visuals;
 
         public override void Setup(GameObject gameObject, EMPController controller)
         {
+            if (Instance != null)
+            {
+                EOSLogger.Warning("EMP: re-setup EMPPlayerFlashLightHandler");
+                Instance.OnDespawn();
+            }
+
             base.Setup(gameObject, controller);
 
             _sentry = gameObject.GetComponent<SentryGunInstance>();
@@ -43,7 +40,14 @@ namespace EOSExt.EMP.Impl.Handlers
             {
                 EOSLogger.Error($"Missing components on Sentry! Has Sentry?: {_sentry == null}, Has Visuals?: {_visuals == null}");
             }
-            handlers.Add(this);
+
+            Instance = this;
+        }
+
+        public override void OnDespawn()
+        {
+            base.OnDespawn();
+            Instance = null;
         }
 
         protected override void DeviceOff()
@@ -67,7 +71,7 @@ namespace EOSExt.EMP.Impl.Handlers
 
         protected override void FlickerDevice()
         {
-            int randomRange = GetRandomRange(0, 3);
+            int randomRange = Random.GetRandomRange(0, 3);
             _sentry.StopFiring();
             switch (randomRange)
             {

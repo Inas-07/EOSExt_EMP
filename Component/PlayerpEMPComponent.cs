@@ -1,9 +1,7 @@
-﻿using EOSExt.EMP.Definition;
-using EOSExt.EMP.Impl.Handlers;
+﻿using EOSExt.EMP.Impl.Handlers;
 using Player;
 using UnityEngine;
-using EOSExt.EMP.Impl;
-using System.Collections.Generic;
+using EOSExt.EMP.Impl.PersistentEMP;
 
 namespace EOSExt.EMP.EMPComponent
 {
@@ -21,7 +19,7 @@ namespace EOSExt.EMP.EMPComponent
 
         private void CheckSetup()
         {
-            if (EMPManager.Current.LocalPlayerAgent == null) return;
+            if (EMPManager.Current.Player == null) return;
 
             EMPManager.Current.SetupHUDAndFlashlight();
             EMPManager.Current.SetupToolHandler();
@@ -37,58 +35,47 @@ namespace EOSExt.EMP.EMPComponent
 
             CheckSetup();
 
-            //var player = EMPManager.Current.LocalPlayerAgent;
+            EMPManager.Current.RemoveInactiveEMPs();
+
             if (player == null)
             {
                 return;
             }
 
-            ItemToDisable itemToDisable = new()
-            {
-                BioTracker = false,
-                PlayerFlashLight = false,
-                PlayerHUD = false,
-                EnvLight = false,
-                GunSight = false,
-                Sentry = false
-            };
-
             InAnypEMP = false;
-            foreach (var EMP in EMPManager.Current.ActiveEMPs)
+            foreach (var EMP in EMPManager.Current.pEMPs)
             {
                 if (EMP.State != ActiveState.ENABLED) continue;
 
+                var itd = EMP.ItemToDisable;
                 if (EMP.InRange(player.Position))
                 {
-                    itemToDisable.BioTracker = itemToDisable.BioTracker || EMP.ItemToDisable.BioTracker;
-                    itemToDisable.PlayerFlashLight = itemToDisable.PlayerFlashLight || EMP.ItemToDisable.PlayerFlashLight;
-                    itemToDisable.PlayerHUD = itemToDisable.PlayerHUD || EMP.ItemToDisable.PlayerHUD;
-                    itemToDisable.GunSight = itemToDisable.GunSight || EMP.ItemToDisable.GunSight;
-                    itemToDisable.Sentry = itemToDisable.Sentry || EMP.ItemToDisable.Sentry;
-                    InAnypEMP = true;
-                }
-            }
+                    if(itd.BioTracker) EMPBioTrackerHandler.Instance?.AddAffectedBy(EMP);
+                    else EMPBioTrackerHandler.Instance?.RemoveAffectedBy(EMP);
+                    
+                    if (itd.PlayerFlashLight) EMPPlayerFlashLightHandler.Instance?.AddAffectedBy(EMP);
+                    else EMPPlayerFlashLightHandler.Instance?.RemoveAffectedBy(EMP);
+                    
+                    if (itd.PlayerHUD) EMPPlayerHudHandler.Instance?.AddAffectedBy(EMP);
+                    else EMPPlayerHudHandler.Instance?.RemoveAffectedBy(EMP);
+                    
+                    if (itd.Sentry) EMPSentryHandler.Instance?.AddAffectedBy(EMP);
+                    else EMPSentryHandler.Instance?.RemoveAffectedBy(EMP);
 
-            void Handle(IEnumerable<EMPHandler> handlers, bool enabled)
-            {
-                foreach (var handler in handlers)
-                {
-                    if(enabled)
+                    if (itd.GunSight)
                     {
-                        handler?.controller?.AddTime(float.PositiveInfinity);
+                        foreach (var h in EMPGunSightHandler.Instances)
+                            h.AddAffectedBy(EMP);
                     }
                     else
                     {
-                        handler?.controller?.ClearTime();
+                        foreach (var h in EMPGunSightHandler.Instances)
+                            h.RemoveAffectedBy(EMP);
                     }
+
+                    InAnypEMP = true;
                 }
             }
-
-            Handle(EMPBioTrackerHandler.Handlers, itemToDisable.BioTracker);
-            Handle(EMPPlayerFlashLightHandler.Handlers, itemToDisable.PlayerFlashLight);
-            Handle(EMPPlayerHudHandler.Handlers, itemToDisable.PlayerHUD);
-            Handle(EMPGunSightHandler.Handlers, itemToDisable.GunSight);
-            Handle(EMPSentryHandler.Handlers, itemToDisable.Sentry);
         }
 
         void OnDestroy()

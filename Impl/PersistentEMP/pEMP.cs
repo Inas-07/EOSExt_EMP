@@ -1,30 +1,12 @@
 ﻿using System;
 using EOSExt.EMP.Definition;
+using EOSExt.EMP.Impl.Handlers;
 using ExtraObjectiveSetup.Utils;
 using FloLib.Networks.Replications;
-using LevelGeneration;
 
-namespace EOSExt.EMP.Impl
+
+namespace EOSExt.EMP.Impl.PersistentEMP
 {
-    public enum ActiveState
-    {
-        DISABLED,
-        ENABLED,
-    }
-
-    public struct pEMPState
-    {
-        public ActiveState status;
-
-        public pEMPState() { }
-
-        public pEMPState(ActiveState status) { this.status = status; }
-
-        public pEMPState(pEMPState o)
-        {
-            status = o.status;
-        }
-    }
 
     public class pEMP : EMPShock
     {
@@ -34,9 +16,9 @@ namespace EOSExt.EMP.Impl
 
         public override ActiveState State => StateReplicator != null ? StateReplicator.State.status : ActiveState.DISABLED;
 
-        public override float RemainingTime => State == ActiveState.ENABLED ? float.PositiveInfinity : float.NegativeInfinity;
+        public override float RemainingTime => endTime;
 
-        public override ItemToDisable ItemToDisable => def != null ? def.ItemToDisable : DISABLE_NOTHING;
+        public override ItemToDisable ItemToDisable => def?.ItemToDisable ?? DISABLE_NOTHING;
 
         public void OnStateChanged(pEMPState oldState, pEMPState newState, bool isRecall)
         {
@@ -52,22 +34,23 @@ namespace EOSExt.EMP.Impl
                 default: throw new NotImplementedException();
             }
 
-            foreach (EMPController empTarget in EMPManager.Current.EMPTargets)
+            if (ItemToDisable.EnvLight == false) return;
+
+            foreach (var h in EMPLightHandler.Instances)
             {
-                if (empTarget.GetComponent<LG_Light>() == null) continue;
                 switch (newState.status)
                 {
                     case ActiveState.DISABLED:
-                        empTarget.ClearTime(); // TODO: this would clear effect on instant shock 
+                        h.RemoveAffectedBy(this);
                         break;
                     case ActiveState.ENABLED:
-                        if (InRange(empTarget.Position))
+                        if (InRange(h.position))
                         {
-                            empTarget.AddTime(float.PositiveInfinity);
+                            h.AddAffectedBy(this);
                         }
                         else
                         {
-                            empTarget.ClearTime(); // TODO: this would clear effect on instant shock 
+                            h.RemoveAffectedBy(this);
                         }
                         break;
                     default: throw new NotImplementedException();
@@ -91,8 +74,23 @@ namespace EOSExt.EMP.Impl
 
         internal void Destroy()
         {
+            endTime = float.NegativeInfinity;
             StateReplicator = null;
             def = null;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is pEMP emp &&
+                   base.Equals(obj) &&
+                   position == emp.position &&
+                   range == emp.range &&
+                   def.Equals(emp.def);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(base.GetHashCode(), position, range, def);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace EOSExt.EMP.Impl.Handlers
     {
         private static List<EMPLightHandler> handlers = new();
 
-        public static IEnumerable<EMPLightHandler> Handlers => handlers;
+        public static IEnumerable<EMPLightHandler> Instances => handlers;
 
         private static void Clear()
         {
@@ -49,7 +49,7 @@ namespace EOSExt.EMP.Impl.Handlers
         {
             if (_light == null)
                 return;
-            _light.ChangeIntensity(GetRandom01() * _originalIntensity);
+            _light.ChangeIntensity(Random.GetRandom01() * _originalIntensity);
         }
 
         protected override void DeviceOn()

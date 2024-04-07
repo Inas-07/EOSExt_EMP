@@ -3,27 +3,16 @@ using Gear;
 using ExtraObjectiveSetup.Utils;
 using Player;
 using UnityEngine;
-using System.Collections.Generic;
-using GTFO.API;
 
 namespace EOSExt.EMP.Impl.Handlers
 {
     public class EMPPlayerFlashLightHandler : EMPHandler
     {
-
-        private static List<EMPPlayerFlashLightHandler> handlers = new();
-
-        public static IEnumerable<EMPPlayerFlashLightHandler> Handlers => handlers;
-
-        private static void Clear()
-        {
-            handlers.Clear();
-        }
+        public static EMPPlayerFlashLightHandler Instance { get; private set; }
 
         static EMPPlayerFlashLightHandler()
         {
-            LevelAPI.OnBuildStart += Clear;
-            LevelAPI.OnLevelCleanup += Clear;
+
         }
 
         private PlayerInventoryBase _inventory;
@@ -36,6 +25,12 @@ namespace EOSExt.EMP.Impl.Handlers
 
         public override void Setup(GameObject gameObject, EMPController controller)
         {
+            if (Instance != null)
+            {
+                EOSLogger.Warning("EMP: re-setup EMPPlayerFlashLightHandler");
+                Instance.OnDespawn();
+            }
+
             base.Setup(gameObject, controller);
 
             _inventory = gameObject.GetComponent<PlayerAgent>().Inventory;
@@ -48,8 +43,14 @@ namespace EOSExt.EMP.Impl.Handlers
                 State = EMPState.On;
                 Events.FlashLightWielded += InventoryEvents_ItemWielded;
             }
+            Instance = this;
+        }
 
-            handlers.Add(this);
+        public override void OnDespawn()
+        {
+            base.OnDespawn();
+            Events.FlashLightWielded -= Instance.InventoryEvents_ItemWielded;
+            Instance = null;
         }
 
         private void InventoryEvents_ItemWielded(GearPartFlashlight flashlight) => _originalIntensity = GameDataBlockBase<FlashlightSettingsDataBlock>.GetBlock(flashlight.m_settingsID).intensity;
@@ -73,9 +74,8 @@ namespace EOSExt.EMP.Impl.Handlers
         {
             if (!FlashlightEnabled)
                 return;
-            _inventory.m_flashlight.intensity = GetRandom01() * _originalIntensity;
+            _inventory.m_flashlight.intensity = Random.GetRandom01() * _originalIntensity;
         }
-
     }
 
 }

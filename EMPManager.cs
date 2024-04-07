@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
-using GTFO.API;
 using Il2CppInterop.Runtime.Injection;
 using ExtraObjectiveSetup.Utils;
 using Player;
@@ -8,26 +6,22 @@ using EOSExt.EMP.Impl;
 using EOSExt.EMP.EMPComponent;
 using EOSExt.EMP.Definition;
 using ExtraObjectiveSetup.BaseClasses;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
+using EOSExt.EMP.Impl.PersistentEMP;
 
 namespace EOSExt.EMP
 {
     public partial class EMPManager : GenericExpeditionDefinitionManager<pEMPDefinition>
     {
-        private List<EMPController> _empTargets { get; } = new List<EMPController>();
-
-        private ConcurrentBag<EMPShock> _activeEMPs { get; } = new();
-        
-        public IEnumerable<EMPShock> ActiveEMPs => _activeEMPs;
-
         public static EMPManager Current { get; private set; } = new();
 
-        public PlayerAgent LocalPlayerAgent { get; private set; } = null;
+        public PlayerAgent Player { get; private set; }
 
+        internal List<EMPShock> ActiveEMPs { get; } = new();
 
         internal void SetLocalPlayerAgent(PlayerAgent localPlayerAgent)
         {
-            this.LocalPlayerAgent = localPlayerAgent;
+            Player = localPlayerAgent;
 
             PlayerpEMPComponent.Current = localPlayerAgent.gameObject.AddComponent<PlayerpEMPComponent>();
             PlayerpEMPComponent.Current.player = localPlayerAgent;
@@ -40,73 +34,65 @@ namespace EOSExt.EMP
             EOSLogger.Debug("LocalPlayerAgent Destroyed");
         }
 
-        public void AddTarget(EMPController target) => _empTargets.Add(target);
-
-        public void RemoveTarget(EMPController target) => _empTargets.Remove(target);
-
         public void ActivateEMPShock(Vector3 position, float range, float duration)
         {
             if (!GameStateManager.IsInExpedition)
             {
                 EOSLogger.Error("Tried to activate an EMP when not in level, this shouldn't happen!");
+                return;
             }
-            else
+
+            var endTime = Clock.Time + duration;
+            var empshock = new EMPShock(position, range, endTime);
+            foreach (var h in EMPHandler.AllHandlers)
             {
-                var endTime = Clock.Time + duration;
-                _activeEMPs.Add(new EMPShock(position, range, endTime));
-                foreach (EMPController empTarget in _empTargets)
+                if (Vector3.Distance(position, h.position) < range)
                 {
-                    if (Vector3.Distance(position, empTarget.Position) < range)
-                        empTarget.AddTime(duration);
+                    h.AddAffectedBy(empshock);
                 }
             }
+
+            ActiveEMPs.Add(empshock);
         }
 
-        public float DurationFromPosition(Vector3 position)
+        internal void RemoveInactiveEMPs()
         {
-            //_activeEMPs.RemoveAll(e => Mathf.Round(e.RemainingTime) <= 0);
-            float totalDurationForPosition = 0;
-            foreach (EMPShock emp in _activeEMPs)
+            float time = Clock.Time;
+            ActiveEMPs.RemoveAll(emp => emp.endTime < time);
+        }
+
+        public bool IsPlayerMapEMPD()
+        {
+            if (Player == null || !GameStateManager.IsInExpedition) return false;
+
+            var p = Player.Position;
+            foreach(var emp in ActiveEMPs)
             {
-                if (emp.InRange(position))
+                if(Vector3.Distance(p, emp.position) < emp.range)
                 {
-                    totalDurationForPosition += emp.RemainingTime;
+                    return true;
                 }
             }
-            return totalDurationForPosition;
-        }
 
-        private void Clear()
-        {
-            _empTargets.Clear();
-            _activeEMPs.Clear();
-            EMPHandler.Cleanup();
+            foreach (var pemp in pEMPs)
+            {
+                if (pemp.State != ActiveState.ENABLED) continue;
+                if (pemp.ItemToDisable.Map != true) continue;
+
+                if (Vector3.Distance(p, pemp.position) < pemp.range)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public override void Init()
         {
             EMPWardenEvents.Init();
-            LevelAPI.OnBuildStart += Clear;
-            LevelAPI.OnLevelCleanup += Clear;
-
             Events.InventoryWielded += SetupAmmoWeaponHandlers;
-            //EventAPI.OnManagersSetup += () =>
-            //{
-            //    _activeEMPCheckCoroutine = CoroutineManager.StartPersistantCoroutine();
-            //};
             pEMPInit();
-        }
-
-        public IEnumerable<EMPController> EMPTargets => _empTargets;
-
-        private Coroutine _activeEMPCheckCoroutine = null;
-
-        private System.Collections.IEnumerator activeEMPCheck()
-        {
-            while(true)
-            {
-                
-            }
         }
 
         private EMPManager()

@@ -1,12 +1,13 @@
 ﻿using EOSExt.EMP.Definition;
-using FloLib.Networks.Replications;
+using EOSExt.EMP.Impl.PersistentEMP;
+using System;
 using UnityEngine;
 
 namespace EOSExt.EMP.Impl
 {
     public class EMPShock
     {
-        public readonly ItemToDisable DISABLE_NOTHING = new()
+        public static readonly ItemToDisable DISABLE_NOTHING = new()
         {
             BioTracker = false,
             PlayerFlashLight = false,
@@ -38,5 +39,21 @@ namespace EOSExt.EMP.Impl
         }
 
         public bool InRange(Vector3 position) => Vector3.Distance(position, this.position) < range;
+
+        public override bool Equals(object obj)
+        {
+            return obj is EMPShock shock &&
+                   State == shock.State &&
+                   position == shock.position &&
+                   range == shock.range &&
+                   endTime == shock.endTime &&
+                   RemainingTime == shock.RemainingTime &&
+                   ItemToDisable.Equals(shock.ItemToDisable);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(State, position, range, endTime, RemainingTime, ItemToDisable);
+        }
     }
 }

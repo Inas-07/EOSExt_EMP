@@ -13,20 +13,22 @@ namespace EOSExt.EMP
     {
         internal void SetupHUDAndFlashlight()
         {
-            if(LocalPlayerAgent == null)
+            if(Player == null)
             {
                 EOSLogger.Error($"{nameof(SetupHUDAndFlashlight): LocalPlayerAgent is not set!}"); 
                 return;
             }
 
-            if (LocalPlayerAgent.gameObject.GetComponent<EMPController>() != null)
+            if(EMPPlayerHudHandler.Instance == null)
             {
-                return;
+                Player.gameObject.AddComponent<EMPController>().AssignHandler(new EMPPlayerHudHandler());
+                EOSLogger.Log("pEMP: PlayerHud setup completed");
             }
-
-            LocalPlayerAgent.gameObject.AddComponent<EMPController>().AssignHandler(new EMPPlayerHudHandler());
-            LocalPlayerAgent.gameObject.AddComponent<EMPController>().AssignHandler(new EMPPlayerFlashLightHandler());
-            EOSLogger.Log($"pEMP: PlayerHUD & flashlight setup completed");
+            if (EMPPlayerFlashLightHandler.Instance == null)
+            {
+                Player.gameObject.AddComponent<EMPController>().AssignHandler(new EMPPlayerFlashLightHandler());
+                EOSLogger.Log("pEMP: PlayerFlashlight setup completed");
+            }
         }
 
         internal void SetupAmmoWeaponHandlers(InventorySlot slot)
@@ -77,7 +79,7 @@ namespace EOSExt.EMP
                 if (backpackItem.Instance.GetComponent<EnemyScanner>() != null)
                 {
                     backpackItem.Instance.gameObject.AddComponent<EMPController>().AssignHandler(new EMPBioTrackerHandler());
-                    EOSLogger.Warning($"pEMP: Backpack {InventorySlot.GearClass} setup completed");
+                    EOSLogger.Log($"pEMP: Backpack {InventorySlot.GearClass} setup completed");
                 }
             }
             else
@@ -85,6 +87,5 @@ namespace EOSExt.EMP
                 EOSLogger.Warning($"Couldn't get item for slot {InventorySlot.GearClass}!");
             }
         }
-
     }
 }
