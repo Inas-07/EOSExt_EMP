@@ -7,6 +7,7 @@ namespace EOSExt.EMP.Impl.Handlers
 {
     public class EMPBioTrackerHandler : EMPHandler
     {
+        // TODO: 问题是否出在: biotracker也可以有复数个？
         public static EMPBioTrackerHandler Instance { get; private set; }
 
         static EMPBioTrackerHandler()
@@ -20,7 +21,7 @@ namespace EOSExt.EMP.Impl.Handlers
         {
             if(Instance != null)
             {
-                EOSLogger.Warning("EMP: re-setup EMPPlayerFlashLightHandler");
+                EOSLogger.Warning("EMP: re-setup EMPBioTrackerHandler");
                 Instance.OnDespawn();
             }
 

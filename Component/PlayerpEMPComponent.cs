@@ -3,6 +3,7 @@ using Player;
 using UnityEngine;
 using EOSExt.EMP.Impl.PersistentEMP;
 
+
 namespace EOSExt.EMP.EMPComponent
 {
     public class PlayerpEMPComponent : MonoBehaviour
@@ -12,8 +13,6 @@ namespace EOSExt.EMP.EMPComponent
         public const float UPDATE_INTERVAL = 0.2f;
 
         public static PlayerpEMPComponent Current { get; internal set; } = null;
-
-        public bool InAnypEMP { get; private set; } = false;
 
         public PlayerAgent player { get; internal set; }
 
@@ -42,38 +41,30 @@ namespace EOSExt.EMP.EMPComponent
                 return;
             }
 
-            InAnypEMP = false;
             foreach (var EMP in EMPManager.Current.pEMPs)
             {
-                if (EMP.State != ActiveState.ENABLED) continue;
-
                 var itd = EMP.ItemToDisable;
-                if (EMP.InRange(player.Position))
-                {
-                    if(itd.BioTracker) EMPBioTrackerHandler.Instance?.AddAffectedBy(EMP);
-                    else EMPBioTrackerHandler.Instance?.RemoveAffectedBy(EMP);
-                    
-                    if (itd.PlayerFlashLight) EMPPlayerFlashLightHandler.Instance?.AddAffectedBy(EMP);
-                    else EMPPlayerFlashLightHandler.Instance?.RemoveAffectedBy(EMP);
-                    
-                    if (itd.PlayerHUD) EMPPlayerHudHandler.Instance?.AddAffectedBy(EMP);
-                    else EMPPlayerHudHandler.Instance?.RemoveAffectedBy(EMP);
-                    
-                    if (itd.Sentry) EMPSentryHandler.Instance?.AddAffectedBy(EMP);
-                    else EMPSentryHandler.Instance?.RemoveAffectedBy(EMP);
 
+                if (EMP.State == ActiveState.ENABLED && EMP.InRange(player.Position))
+                {
+                    if (itd.BioTracker) EMPBioTrackerHandler.Instance?.AddAffectedBy(EMP);
+                    if (itd.PlayerFlashLight) EMPPlayerFlashLightHandler.Instance?.AddAffectedBy(EMP);
+                    if (itd.PlayerHUD) EMPPlayerHudHandler.Instance?.AddAffectedBy(EMP);
+                    if (itd.Sentry) EMPSentryHandler.Instance?.AddAffectedBy(EMP);
                     if (itd.GunSight)
                     {
                         foreach (var h in EMPGunSightHandler.Instances)
                             h.AddAffectedBy(EMP);
                     }
-                    else
-                    {
-                        foreach (var h in EMPGunSightHandler.Instances)
-                            h.RemoveAffectedBy(EMP);
-                    }
-
-                    InAnypEMP = true;
+                }
+                else
+                {
+                    EMPBioTrackerHandler.Instance?.RemoveAffectedBy(EMP);
+                    EMPPlayerFlashLightHandler.Instance?.RemoveAffectedBy(EMP);
+                    EMPPlayerHudHandler.Instance?.RemoveAffectedBy(EMP);
+                    EMPSentryHandler.Instance?.RemoveAffectedBy(EMP);
+                    foreach (var h in EMPGunSightHandler.Instances)
+                        h.RemoveAffectedBy(EMP);
                 }
             }
         }

@@ -28,7 +28,7 @@ namespace EOSExt.EMP.Impl.Handlers
         {
             if (Instance != null)
             {
-                EOSLogger.Warning("EMP: re-setup EMPPlayerFlashLightHandler");
+                EOSLogger.Warning("EMP: re-setup EMPSentryHandler");
                 Instance.OnDespawn();
             }
 

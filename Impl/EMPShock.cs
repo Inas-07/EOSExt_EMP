@@ -15,6 +15,7 @@ namespace EOSExt.EMP.Impl
             Sentry = false,
             EnvLight = false,
             GunSight = false,
+            Map = false,
         };
 
         public virtual ActiveState State => RemainingTime > 0f ? ActiveState.ENABLED : ActiveState.DISABLED;
