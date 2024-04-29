@@ -3,14 +3,21 @@ using GTFO.API;
 using LevelGeneration;
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 namespace EOSExt.EMP.Impl.Handlers
 {
     public class EMPLightHandler : EMPHandler
     {
-        private static List<EMPLightHandler> handlers = new();
+        private static Dictionary<IntPtr, EMPLightHandler> handlers = new();
 
-        public static IEnumerable<EMPLightHandler> Instances => handlers;
+        public static IEnumerable<EMPLightHandler> Instances => handlers.Values;
+
+        internal static EMPLightHandler GetHandler(LG_Light light) 
+        {
+            return handlers.TryGetValue(light.Pointer, out var handler) ? handler : null;
+        }
+
 
         private static void Clear()
         {
@@ -38,11 +45,22 @@ namespace EOSExt.EMP.Impl.Handlers
             }
             else
             {
+                // FIXME: this impl. turns light color into white, if it's not flickering
                 _originalIntensity = _light.GetIntensity();
                 _originalColor = new Color(_light.m_color.r, _light.m_color.g, _light.m_color.b, _light.m_color.a);
                 State = EMPState.On;
             }
-            handlers.Add(this);
+            handlers[_light.Pointer] = this;
+        }
+
+        public void SetOriginalColor(Color color) => _originalColor = new(color.r, color.g, color.b, color.a);
+
+        public void SetOriginalIntensity(float intensity) => _originalIntensity = intensity;
+
+        protected override void OnTick(bool isEMPD)
+        {
+            //base.OnTick(isEMPD);
+            //if(isEMPD)
         }
 
         protected override void FlickerDevice()

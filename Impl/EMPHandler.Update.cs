@@ -14,9 +14,14 @@ namespace EOSExt.EMP.Impl
 
         protected virtual float FlickerDuration => 0.2f;
 
-        protected virtual float MinDelay => 0.0f;
+        protected virtual float OnToOffMinDelay => 0.0f;
 
-        protected virtual float MaxDelay => 1.5f;
+        protected virtual float OnToOffMaxDelay => 0.75f;
+
+        protected virtual float OffToOnMinDelay => 0.85f;
+
+        protected virtual float OffToOnMaxDelay => 1.5f;
+
 
         protected virtual bool IsDeviceOnPlayer => false;
 
@@ -55,14 +60,14 @@ namespace EOSExt.EMP.Impl
 
             if (isEMPD && State == EMPState.On)
             {
-                float randomDelay = Random.GetRandomDelay(MinDelay, MaxDelay);
+                float randomDelay = Random.GetRandomDelay(OnToOffMinDelay, OnToOffMaxDelay);
                 State = EMPState.FlickerOff;
                 _delayTimer = Clock.Time + randomDelay;
                 _stateTimer = Clock.Time + randomDelay + FlickerDuration;
             }
             if (!isEMPD && State == EMPState.Off)
             {
-                float randomDelay = Random.GetRandomDelay(MinDelay, MaxDelay);
+                float randomDelay = Random.GetRandomDelay(OffToOnMinDelay, OffToOnMaxDelay);
                 State = EMPState.FlickerOn;
                 _delayTimer = Clock.Time + randomDelay;
                 _stateTimer = Clock.Time + randomDelay + FlickerDuration;
@@ -71,8 +76,8 @@ namespace EOSExt.EMP.Impl
             switch (State)
             {
                 case EMPState.On:
-                    if (_deviceState == DeviceState.On)
-                        break;
+                    //if (_deviceState == DeviceState.On)
+                    //    break;
                     DeviceOn();
                     _deviceState = DeviceState.On;
                     break;
@@ -89,8 +94,8 @@ namespace EOSExt.EMP.Impl
                     break;
 
                 case EMPState.Off:
-                    if (_deviceState == DeviceState.Off)
-                        break;
+                    //if (_deviceState == DeviceState.Off)
+                    //    break;
                     DeviceOff();
                     _deviceState = DeviceState.Off;
                     break;
@@ -106,6 +111,26 @@ namespace EOSExt.EMP.Impl
                     State = EMPState.On;
                     break;
             }
+
+            OnTick(isEMPD);
+        }
+
+        protected virtual void OnTick(bool isEMPD)
+        {
+            //if (isEMPD)
+            //{
+            //    if(State == EMPState.Off)
+            //    {
+            //        DeviceOff();
+            //    }
+            //}
+            //else 
+            //{
+            //    if (State == EMPState.On)
+            //    {
+            //        DeviceOn();
+            //    }
+            //}
         }
 
         protected abstract void FlickerDevice();

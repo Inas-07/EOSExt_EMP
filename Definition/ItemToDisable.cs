@@ -32,5 +32,12 @@ namespace EOSExt.EMP.Definition
         {
             return HashCode.Combine(BioTracker, PlayerHUD, PlayerFlashLight, EnvLight, GunSight, Sentry, Map);
         }
+
+        public override string ToString()
+        {
+            return $"ItemToDisable:\n" +
+                $"BioTracker: {BioTracker}, PlayerHUD: {PlayerHUD}, PlayerFlashLight: {PlayerFlashLight},\n" +
+                $"EnvLight: {EnvLight}, GunSight: {GunSight}, Sentry: {Sentry}, Map: {Map}";
+        }
     }
 }

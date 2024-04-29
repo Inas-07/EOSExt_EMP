@@ -8,6 +8,8 @@ using EOSExt.EMP.Definition;
 using ExtraObjectiveSetup.BaseClasses;
 using System.Collections.Generic;
 using EOSExt.EMP.Impl.PersistentEMP;
+using GTFO.API.Utilities;
+using Il2CppSystem.Runtime.InteropServices;
 
 namespace EOSExt.EMP
 {
@@ -77,15 +79,28 @@ namespace EOSExt.EMP
             foreach (var pemp in pEMPs)
             {
                 if (pemp.State != ActiveState.ENABLED) continue;
-                if (pemp.ItemToDisable.Map != true) continue;
+                if (!pemp.ItemToDisable.Map) continue;
 
                 if (Vector3.Distance(p, pemp.position) < pemp.range)
                 {
+                    EOSLogger.Warning("MapEMPD: by pEMP");
                     return true;
                 }
             }
 
             return false;
+        }
+
+        protected override void FileChanged(LiveEditEventArgs e)
+        {
+            base.FileChanged(e);
+            if(definitions.TryGetValue(CurrentMainLevelLayout, out var defs))
+            {
+                foreach(var def in defs.Definitions)
+                {
+                    EOSLogger.Warning(def.ItemToDisable.ToString());
+                }
+            }
         }
 
         public override void Init()

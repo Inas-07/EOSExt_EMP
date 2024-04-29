@@ -3,7 +3,7 @@ using EOSExt.EMP.Definition;
 using EOSExt.EMP.Impl.Handlers;
 using ExtraObjectiveSetup.Utils;
 using FloLib.Networks.Replications;
-
+using SNetwork;
 
 namespace EOSExt.EMP.Impl.PersistentEMP
 {
@@ -20,12 +20,17 @@ namespace EOSExt.EMP.Impl.PersistentEMP
 
         public override ItemToDisable ItemToDisable => def?.ItemToDisable ?? DISABLE_NOTHING;
 
-        public void OnStateChanged(pEMPState oldState, pEMPState newState, bool isRecall)
+        private void OnStateChanged(pEMPState oldState, pEMPState newState, bool isRecall)
         {
-            if (def == null || oldState.status == newState.status) return;
+            if (!isRecall) return;
+            ChangeToStateUnsynced(newState.status);
+        }
 
-            EOSLogger.Debug($"pEMP_{def.pEMPIndex} Change state: {oldState.status} -> {newState.status}");
-            switch (newState.status)
+        private void ChangeToStateUnsynced(ActiveState newState)
+        {
+            EOSLogger.Debug($"pEMP_{def.pEMPIndex} Change state: {State} -> {newState}");
+            EOSLogger.Debug($"ItemToDisable.Map: {ItemToDisable.Map}");
+            switch (newState)
             {
                 case ActiveState.DISABLED:
                     endTime = float.NegativeInfinity; break;
@@ -38,7 +43,7 @@ namespace EOSExt.EMP.Impl.PersistentEMP
 
             foreach (var h in EMPLightHandler.Instances)
             {
-                switch (newState.status)
+                switch (newState)
                 {
                     case ActiveState.DISABLED:
                         h.RemoveAffectedBy(this);
@@ -58,7 +63,14 @@ namespace EOSExt.EMP.Impl.PersistentEMP
             }
         }
 
-        public void ChangeState(ActiveState newState) => StateReplicator?.SetState(new pEMPState() { status = newState });
+        public void ChangeToState(ActiveState newState)
+        {
+            ChangeToStateUnsynced(newState);
+            if(SNet.IsMaster)
+            {
+                StateReplicator?.SetState(new pEMPState() { status = newState });
+            }
+        }
 
         internal void SetupReplicator(uint replicatorID)
         {

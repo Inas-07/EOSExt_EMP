@@ -31,7 +31,8 @@ namespace EOSExt.EMP.Definition
                 PlayerFlashLight = other.ItemToDisable.PlayerFlashLight,
                 EnvLight = other.ItemToDisable.EnvLight,
                 GunSight = other.ItemToDisable.GunSight,
-                Sentry = other.ItemToDisable.Sentry
+                Sentry = other.ItemToDisable.Sentry,
+                Map = other.ItemToDisable.Map,
             };
         }
 

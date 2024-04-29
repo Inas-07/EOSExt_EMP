@@ -21,6 +21,11 @@ namespace EOSExt.EMP.Patches
                 map.SetMapVisualsIsActive(false);
                 map.SetMapDisconnetedTextIsActive(true);
             }
+            //else
+            //{
+            //    map.SetMapVisualsIsActive(true);
+            //    map.SetMapDisconnetedTextIsActive(false);
+            //}
         }
     }
 }

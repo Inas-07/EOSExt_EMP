@@ -48,30 +48,56 @@ namespace EOSExt.EMP.Impl.Handlers
                 t.gameObject.SetActive(enabled);
             }
 
+        }
+
+        private void ForPlayerNavMarker(bool enabled)
+        {
             foreach (var p in PlayerManager.PlayerAgentsInLevel)
             {
                 if (p.IsLocallyOwned) continue;
 
                 p.NavMarker.SetMarkerVisible(enabled);
             }
+        }
 
+        private void ForPlayerGhostOpacity(bool enabled)
+        {
             CellSettingsApply.ApplyPlayerGhostOpacity(enabled ?
                 CellSettingsManager.SettingsData.HUD.Player_GhostOpacity.Value : 0.0f);
+        }
+
+        protected override void OnTick(bool isEMPD)
+        {
+            base.OnTick(isEMPD);
+            bool markerVisible = !isEMPD;
+            foreach (var p in PlayerManager.PlayerAgentsInLevel)
+            {
+                if (p.IsLocallyOwned) continue;
+
+                p.NavMarker.SetMarkerVisible(markerVisible);
+            }
         }
 
         protected override void DeviceOff()
         {
             ForAllComponents(false);
+            ForPlayerNavMarker(false);
+            ForPlayerGhostOpacity(false);
         }
 
         protected override void DeviceOn()
         {
             ForAllComponents(true);
+            ForPlayerNavMarker(true);
+            ForPlayerGhostOpacity(true);
         }
 
         protected override void FlickerDevice()
         {
-            ForAllComponents(Random.FlickerUtil());
+            bool enabled = Random.FlickerUtil();
+            ForAllComponents(enabled);
+            ForPlayerNavMarker(enabled);
+            ForPlayerGhostOpacity(enabled);
         }
     }
 }

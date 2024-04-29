@@ -31,7 +31,7 @@ namespace EOSExt.EMP
 
             ActiveState newState = enabled ? ActiveState.ENABLED : ActiveState.DISABLED;
             var pEMP = _pEMPs[pEMPIndex];
-            pEMP.ChangeState(newState);
+            pEMP.ChangeToState(newState);
         }
 
         public void TogglepEMPState(WardenObjectiveEventData e)
@@ -49,6 +49,11 @@ namespace EOSExt.EMP
 
         private void pEMPClear()
         {
+            foreach(var pEMP in _pEMPs.Values)
+            {
+                pEMP.Destroy();
+            }
+
             _pEMPs.Clear();
         }
 
