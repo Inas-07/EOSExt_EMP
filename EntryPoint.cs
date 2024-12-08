@@ -8,13 +8,14 @@ namespace EOSExt.EMP
     [BepInDependency("dev.gtfomodding.gtfo-api", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("GTFO.FloLib", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("Inas.ExtraObjectiveSetup", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency(AWOUtil.PLUGIN_GUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInPlugin(AUTHOR + "." + PLUGIN_NAME, PLUGIN_NAME, VERSION)]
     
     public class EntryPoint: BasePlugin
     {
         public const string AUTHOR = "Inas";
         public const string PLUGIN_NAME = "EOSExt.EMP";
-        public const string VERSION = "1.1.5";
+        public const string VERSION = "1.1.7";
 
         private Harmony m_Harmony;
         

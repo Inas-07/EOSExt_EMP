@@ -2,6 +2,7 @@
 using Player;
 using UnityEngine;
 using EOSExt.EMP.Impl.PersistentEMP;
+using SNetwork;
 
 
 namespace EOSExt.EMP.EMPComponent
@@ -12,9 +13,9 @@ namespace EOSExt.EMP.EMPComponent
 
         public const float UPDATE_INTERVAL = 0.2f;
 
-        public static PlayerpEMPComponent Current { get; internal set; } = null;
+        public static PlayerpEMPComponent Current => SNet.HasLocalPlayer && SNet.LocalPlayer.HasPlayerAgent ? SNet.LocalPlayer.PlayerAgent.Cast<PlayerAgent>().GetComponent<PlayerpEMPComponent>() : null; //{ get; internal set; } = null;
 
-        public PlayerAgent player { get; internal set; }
+        public PlayerAgent player => gameObject.GetComponent<PlayerAgent>();
 
         private void CheckSetup()
         {
@@ -71,8 +72,7 @@ namespace EOSExt.EMP.EMPComponent
 
         void OnDestroy()
         {
-            EMPManager.Current.OnLocalPlayerAgentDestroy();
-            player = null;
+
         }
 
         static PlayerpEMPComponent()

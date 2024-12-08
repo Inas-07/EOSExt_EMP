@@ -10,30 +10,26 @@ using System.Collections.Generic;
 using EOSExt.EMP.Impl.PersistentEMP;
 using GTFO.API.Utilities;
 using Il2CppSystem.Runtime.InteropServices;
+using SNetwork;
 
 namespace EOSExt.EMP
 {
     public partial class EMPManager : GenericExpeditionDefinitionManager<pEMPDefinition>
     {
-        public static EMPManager Current { get; private set; } = new();
+        public static EMPManager Current { get; } = new();
 
-        public PlayerAgent Player { get; private set; }
+        //public PlayerAgent Player { get; private set; }
+        public PlayerAgent Player => SNet.HasLocalPlayer && SNet.LocalPlayer.HasPlayerAgent? SNet.LocalPlayer.PlayerAgent.Cast<PlayerAgent>() : null; 
 
         internal List<EMPShock> ActiveEMPs { get; } = new();
 
         internal void SetLocalPlayerAgent(PlayerAgent localPlayerAgent)
         {
-            Player = localPlayerAgent;
-
-            PlayerpEMPComponent.Current = localPlayerAgent.gameObject.AddComponent<PlayerpEMPComponent>();
-            PlayerpEMPComponent.Current.player = localPlayerAgent;
-            EOSLogger.Debug("LocalPlayerAgent setup completed");
-        }
-
-        internal void OnLocalPlayerAgentDestroy()
-        {
-            PlayerpEMPComponent.Current = null;
-            EOSLogger.Debug("LocalPlayerAgent Destroyed");
+            if(PlayerpEMPComponent.Current == null)
+            {
+                localPlayerAgent.gameObject.AddComponent<PlayerpEMPComponent>();
+            }
+            //EOSLogger.Debug("LocalPlayerAgent setup completed");
         }
 
         public void ActivateEMPShock(Vector3 position, float range, float duration)

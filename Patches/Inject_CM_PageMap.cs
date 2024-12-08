@@ -9,7 +9,7 @@ namespace EOSExt.EMP.Patches
     {
         [HarmonyPostfix]
         [HarmonyPatch(typeof(CM_PageMap), nameof(CM_PageMap.UpdatePlayerData))]
-        private static void Pre_CM_PageMap_OnEnable()
+        private static void Post_CM_PageMap_OnEnable()
         {
             var map = MainMenuGuiLayer.Current.PageMap;
             if (map == null 

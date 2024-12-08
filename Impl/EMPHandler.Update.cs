@@ -76,8 +76,8 @@ namespace EOSExt.EMP.Impl
             switch (State)
             {
                 case EMPState.On:
-                    //if (_deviceState == DeviceState.On)
-                    //    break;
+                    if (_deviceState == DeviceState.On)
+                        break;
                     DeviceOn();
                     _deviceState = DeviceState.On;
                     break;
@@ -94,8 +94,8 @@ namespace EOSExt.EMP.Impl
                     break;
 
                 case EMPState.Off:
-                    //if (_deviceState == DeviceState.Off)
-                    //    break;
+                    if (_deviceState == DeviceState.Off)
+                        break;
                     DeviceOff();
                     _deviceState = DeviceState.Off;
                     break;
@@ -117,20 +117,7 @@ namespace EOSExt.EMP.Impl
 
         protected virtual void OnTick(bool isEMPD)
         {
-            //if (isEMPD)
-            //{
-            //    if(State == EMPState.Off)
-            //    {
-            //        DeviceOff();
-            //    }
-            //}
-            //else 
-            //{
-            //    if (State == EMPState.On)
-            //    {
-            //        DeviceOn();
-            //    }
-            //}
+
         }
 
         protected abstract void FlickerDevice();

@@ -18,7 +18,6 @@ namespace EOSExt.EMP.Impl.Handlers
             return handlers.TryGetValue(light.Pointer, out var handler) ? handler : null;
         }
 
-
         private static void Clear()
         {
             handlers.Clear();
@@ -53,14 +52,27 @@ namespace EOSExt.EMP.Impl.Handlers
             handlers[_light.Pointer] = this;
         }
 
-        public void SetOriginalColor(Color color) => _originalColor = new(color.r, color.g, color.b, color.a);
+        public void SetOriginalColor(Color color) => _originalColor = color;
 
         public void SetOriginalIntensity(float intensity) => _originalIntensity = intensity;
 
         protected override void OnTick(bool isEMPD)
         {
-            //base.OnTick(isEMPD);
-            //if(isEMPD)
+            base.OnTick(isEMPD);
+            if (State == EMPState.Off)
+            {
+                DeviceOff();
+            } 
+            else if (State == EMPState.On)
+            {
+                DeviceOn();
+            }
+
+            //if(!isEMPD && State == EMPState.On)
+            //{
+            //    this.SetOriginalColor(this._light.m_color);
+            //    this.SetOriginalIntensity(this._light.m_intensity);
+            //}
         }
 
         protected override void FlickerDevice()

@@ -44,12 +44,8 @@ namespace EOSExt.EMP.Impl
         public override bool Equals(object obj)
         {
             return obj is EMPShock shock &&
-                   State == shock.State &&
                    position == shock.position &&
-                   range == shock.range &&
-                   endTime == shock.endTime &&
-                   RemainingTime == shock.RemainingTime &&
-                   ItemToDisable.Equals(shock.ItemToDisable);
+                   range == shock.range;
         }
 
         public override int GetHashCode()

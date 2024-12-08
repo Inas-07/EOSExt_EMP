@@ -12,13 +12,15 @@ namespace EOSExt.EMP.Patches
         [HarmonyPrefix]
         [HarmonyWrapSafe]
         [HarmonyPatch(nameof(EnemyScanner.UpdateDetectedEnemies))]
-        internal static bool Pre_UpdateDetectedEnemies() => !EMPBioTrackerHandler.Instance.IsEMPed();
+        internal static bool Pre_UpdateDetectedEnemies() => (!EMPBioTrackerHandler.Instance?.IsEMPed()) ?? true;
 
         [HarmonyPrefix]
         [HarmonyWrapSafe]
         [HarmonyPatch(nameof(EnemyScanner.UpdateTagProgress))]
         internal static bool Pre_UpdateTagProgress(EnemyScanner __instance)
         {
+            if (EMPBioTrackerHandler.Instance == null) return true;
+
             if (EMPBioTrackerHandler.Instance.IsEMPed())
             {
                 __instance.Sound.Post(EVENTS.BIOTRACKER_TOOL_LOOP_STOP);

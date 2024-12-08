@@ -69,12 +69,15 @@ namespace EOSExt.EMP.Impl.Handlers
         protected override void OnTick(bool isEMPD)
         {
             base.OnTick(isEMPD);
-            bool markerVisible = !isEMPD;
-            foreach (var p in PlayerManager.PlayerAgentsInLevel)
-            {
-                if (p.IsLocallyOwned) continue;
+            bool enabled = !isEMPD;
 
-                p.NavMarker.SetMarkerVisible(markerVisible);
+            if(State == EMPState.Off)
+            {
+                DeviceOff();
+            }
+            else if(State == EMPState.On)
+            {
+                DeviceOn();
             }
         }
 

@@ -14,6 +14,8 @@ namespace EOSExt.EMP.Impl.PersistentEMP
 
         public StateReplicator<pEMPState> StateReplicator { get; private set; }
 
+        private uint replicatorID;
+
         public override ActiveState State => StateReplicator != null ? StateReplicator.State.status : ActiveState.DISABLED;
 
         public override float RemainingTime => endTime;
@@ -29,7 +31,6 @@ namespace EOSExt.EMP.Impl.PersistentEMP
         private void ChangeToStateUnsynced(ActiveState newState)
         {
             EOSLogger.Debug($"pEMP_{def.pEMPIndex} Change state: {State} -> {newState}");
-            EOSLogger.Debug($"ItemToDisable.Map: {ItemToDisable.Map}");
             switch (newState)
             {
                 case ActiveState.DISABLED:
@@ -74,6 +75,7 @@ namespace EOSExt.EMP.Impl.PersistentEMP
 
         internal void SetupReplicator(uint replicatorID)
         {
+            this.replicatorID = replicatorID;
             StateReplicator = StateReplicator<pEMPState>.Create(replicatorID, new pEMPState() { status = ActiveState.DISABLED }, LifeTimeType.Level);
             StateReplicator.OnStateChanged += OnStateChanged;
         }
@@ -94,15 +96,13 @@ namespace EOSExt.EMP.Impl.PersistentEMP
         public override bool Equals(object obj)
         {
             return obj is pEMP emp &&
-                   base.Equals(obj) &&
-                   position == emp.position &&
-                   range == emp.range &&
-                   def.Equals(emp.def);
+                   def.Equals(emp.def) &&
+                   replicatorID == emp.replicatorID;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(base.GetHashCode(), position, range, def);
+            return HashCode.Combine(def, replicatorID);
         }
     }
 }
