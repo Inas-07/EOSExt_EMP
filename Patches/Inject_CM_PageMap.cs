@@ -14,7 +14,8 @@ namespace EOSExt.EMP.Patches
             var map = MainMenuGuiLayer.Current.PageMap;
             if (map == null 
                 || RundownManager.ActiveExpedition == null 
-                || GameStateManager.CurrentStateName != eGameStateName.InLevel) return;
+                || GameStateManager.CurrentStateName != eGameStateName.InLevel
+                || map.m_mapDisconnected.activeSelf) return;
 
             if (EMPManager.Current.IsPlayerMapEMPD())
             {
