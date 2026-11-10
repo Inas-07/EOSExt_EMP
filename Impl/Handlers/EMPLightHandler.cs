@@ -1,6 +1,6 @@
 ﻿using ExtraObjectiveSetup.Utils;
 using GTFO.API;
-using LevelGeneration;
+using AmorLib.API;
 using UnityEngine;
 using System.Collections.Generic;
 using System;
@@ -13,15 +13,8 @@ namespace EOSExt.EMP.Impl.Handlers
 
         public static IEnumerable<EMPLightHandler> Instances => handlers.Values;
 
-        internal static EMPLightHandler GetHandler(LG_Light light) 
-        {
-            return handlers.TryGetValue(light.Pointer, out var handler) ? handler : null;
-        }
-
-        private static void Clear()
-        {
-            handlers.Clear();
-        }
+        private readonly LightWorker _worker;
+        private ILightModifier _mod;
 
         static EMPLightHandler()
         {
@@ -29,32 +22,33 @@ namespace EOSExt.EMP.Impl.Handlers
             LevelAPI.OnLevelCleanup += Clear;
         }
 
-        private LG_Light _light;
-        private float _originalIntensity;
-        private Color _originalColor;
+        private static void Clear()
+        {
+            foreach (var handler in handlers.Values)
+            {
+                handler._mod?.Remove();
+                handler._mod = null;
+            }
+            handlers.Clear();
+        }
+
+        public EMPLightHandler(LightWorker worker)
+        {
+            _worker = worker;
+        }
 
         public override void Setup(GameObject gameObject, EMPController controller)
         {
             base.Setup(gameObject, controller);
+            if (_worker?.Light == null)
+            {
+                EOSLogger.Warning("EMPLightHandler: no light worker");
+                return;
+            }
 
-            _light = gameObject.GetComponent<LG_Light>();
-            if (_light == null)
-            {
-                EOSLogger.Warning("No Light!");
-            }
-            else
-            {
-                // FIXME: this impl. turns light color into white, if it's not flickering
-                _originalIntensity = _light.GetIntensity();
-                _originalColor = new Color(_light.m_color.r, _light.m_color.g, _light.m_color.b, _light.m_color.a);
-                State = EMPState.On;
-            }
-            handlers[_light.Pointer] = this;
+            State = EMPState.On;
+            handlers[_worker.Light.Pointer] = this;
         }
-
-        public void SetOriginalColor(Color color) => _originalColor = color;
-
-        public void SetOriginalIntensity(float intensity) => _originalIntensity = intensity;
 
         protected override void OnTick(bool isEMPD)
         {
@@ -62,40 +56,33 @@ namespace EOSExt.EMP.Impl.Handlers
             if (State == EMPState.Off)
             {
                 DeviceOff();
-            } 
+            }
             else if (State == EMPState.On)
             {
                 DeviceOn();
             }
-
-            //if(!isEMPD && State == EMPState.On)
-            //{
-            //    this.SetOriginalColor(this._light.m_color);
-            //    this.SetOriginalIntensity(this._light.m_intensity);
-            //}
         }
 
         protected override void FlickerDevice()
         {
-            if (_light == null)
-                return;
-            _light.ChangeIntensity(Random.GetRandom01() * _originalIntensity);
+            if (_worker?.Light == null) return;
+            _mod ??= _worker.AddModifier(_worker.CurrentColor, _worker.CurrentIntensity, _worker.CurrentEnabled, LightPriority.EMP);
+            _mod.Intensity = Random.GetRandom01() * _worker.OrigIntensity;
         }
 
         protected override void DeviceOn()
         {
-            if (_light == null)
-                return;
-            _light.ChangeIntensity(_originalIntensity);
-            _light.ChangeColor(_originalColor);
+            if (_mod == null) return;
+            _mod.Remove();
+            _mod = null;
         }
 
         protected override void DeviceOff()
         {
-            if (_light == null)
-                return;
-            _light.ChangeIntensity(0.0f);
-            _light.ChangeColor(Color.black);
+            if (_worker?.Light == null) return;
+            _mod ??= _worker.AddModifier(_worker.CurrentColor, _worker.CurrentIntensity, _worker.CurrentEnabled, LightPriority.EMP);
+            _mod.Color = Color.black;
+            _mod.Intensity = 0f;
         }
     }
 }
