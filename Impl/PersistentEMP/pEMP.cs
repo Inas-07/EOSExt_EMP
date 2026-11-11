@@ -2,7 +2,7 @@
 using EOSExt.EMP.Definition;
 using EOSExt.EMP.Impl.Handlers;
 using ExtraObjectiveSetup.Utils;
-using FloLib.Networks.Replications;
+using AmorLib.Networking.StateReplicators;
 using SNetwork;
 
 namespace EOSExt.EMP.Impl.PersistentEMP
@@ -76,7 +76,7 @@ namespace EOSExt.EMP.Impl.PersistentEMP
         internal void SetupReplicator(uint replicatorID)
         {
             this.replicatorID = replicatorID;
-            StateReplicator = StateReplicator<pEMPState>.Create(replicatorID, new pEMPState() { status = ActiveState.DISABLED }, LifeTimeType.Level);
+            StateReplicator = StateReplicator<pEMPState>.Create(replicatorID, new pEMPState() { status = ActiveState.DISABLED }, LifeTimeType.Session);
             StateReplicator.OnStateChanged += OnStateChanged;
         }
 
