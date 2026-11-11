@@ -6,7 +6,6 @@ using HarmonyLib;
 namespace EOSExt.EMP
 {
     [BepInDependency("dev.gtfomodding.gtfo-api", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency("GTFO.FloLib", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("Inas.ExtraObjectiveSetup", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency(AWOUtil.PLUGIN_GUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("Amor.AmorLib", BepInDependency.DependencyFlags.HardDependency)]
@@ -16,7 +15,7 @@ namespace EOSExt.EMP
     {
         public const string AUTHOR = "Inas";
         public const string PLUGIN_NAME = "EOSExt.EMP";
-        public const string VERSION = "1.1.7";
+        public const string VERSION = "1.2.0";
 
         private Harmony m_Harmony;
         
