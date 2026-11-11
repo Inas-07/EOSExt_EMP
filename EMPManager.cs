@@ -11,6 +11,11 @@ using EOSExt.EMP.Impl.PersistentEMP;
 using GTFO.API.Utilities;
 using Il2CppSystem.Runtime.InteropServices;
 using SNetwork;
+using AmorLib.API;
+using EOSExt.EMP.Impl.Handlers;
+using GTFO.API;
+using GameData;
+using System;
 
 namespace EOSExt.EMP
 {
@@ -99,11 +104,31 @@ namespace EOSExt.EMP
             }
         }
 
+        private bool _lightHandlersHooked;
+
+        private void HookLightHandlers()
+        {
+            if (_lightHandlersHooked) return;
+            _lightHandlersHooked = true;
+
+            LevelAPI.OnBuildDone += () =>
+            {
+                foreach (var worker in LightAPI.GetLightWorkersInDimension(Enum.GetValues<eDimensionIndex>()))
+                {
+                    if (worker?.Light == null) continue;
+                    var go = worker.Light.gameObject;
+                    if (go.GetComponent<EMPController>() != null) continue;
+                    go.AddComponent<EMPController>().AssignHandler(new EMPLightHandler(worker));
+                }
+            };
+        }
+
         public override void Init()
         {
             EMPWardenEvents.Init();
             Events.InventoryWielded += SetupAmmoWeaponHandlers;
             pEMPInit();
+            HookLightHandlers();
         }
 
         private EMPManager()

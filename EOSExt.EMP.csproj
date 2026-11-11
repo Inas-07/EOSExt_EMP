@@ -1,0 +1,66 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="Dependencies.props" />
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <RootNamespace>EOSExt.EMP</RootNamespace>
+    <AssemblyName>Inas07.EOSExt.EMP</AssemblyName>
+    <TargetFramework>net6</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Platforms>x64</Platforms>
+    <OutputPath>$(PluginsFolder)</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="AWOUtil.cs" />
+    <Compile Include="Component\PlayerpEMPComponent.cs" />
+    <Compile Include="Definition\ItemToDisable.cs" />
+    <Compile Include="Definition\pEMPDefinition.cs" />
+    <Compile Include="EMPManager.cs" />
+    <Compile Include="EMPManager.LateSetupHandler.cs" />
+    <Compile Include="EMPManager.pEMP.cs" />
+    <Compile Include="EMPWardenEvents.cs" />
+    <Compile Include="EntryPoint.cs" />
+    <Compile Include="Events.cs" />
+    <Compile Include="Impl\EMPController.cs" />
+    <Compile Include="Impl\EMPHandler.cs" />
+    <Compile Include="Impl\EMPHandler.Update.cs" />
+    <Compile Include="Impl\EMPShock.cs" />
+    <Compile Include="Impl\EMPState.cs" />
+    <Compile Include="Impl\Handlers\EMPBioTrackerHandler.cs" />
+    <Compile Include="Impl\Handlers\EMPGunSightHandler.cs" />
+    <Compile Include="Impl\Handlers\EMPLightHandler.cs" />
+    <Compile Include="Impl\Handlers\EMPPlayerFlashLightHandler.cs" />
+    <Compile Include="Impl\Handlers\EMPPlayerHudHandler.cs" />
+    <Compile Include="Impl\Handlers\EMPSentryHandler.cs" />
+    <Compile Include="Impl\PersistentEMP\ActiveState.cs" />
+    <Compile Include="Impl\PersistentEMP\pEMP.cs" />
+    <Compile Include="Impl\PersistentEMP\pEMPState.cs" />
+    <Compile Include="Impl\Random.cs" />
+    <Compile Include="Patches\Inject_CM_PageMap.cs" />
+    <Compile Include="Patches\Inject_EnemyScanner.cs" />
+    <Compile Include="Patches\Inject_Events.cs" />
+    <Compile Include="Patches\Inject_PlayerAgent.cs" />
+    <Compile Include="Patches\Inject_PlayerHUD.cs" />
+    <Compile Include="Patches\Inject_PlayerSync.cs" />
+    <Compile Include="Patches\Inject_SentryGunFirstPerson.cs" />
+    <Compile Include="Patches\Inject_SentryGunInstance.cs" />
+    <Compile Include="Patches\Patch_OnRecallDone.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Dependencies.props" />
+  </ItemGroup>
+</Project>
